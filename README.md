@@ -1,2 +1,3 @@
 # Algorand-IITBombay
 Design and development of Smart Contract applications for Algorand Blockchain
+Algorand is ablockchain created by Turing Award winner Silvio Micali. IIT Bombay is part of an Algorand Center of Excellence led by Purdue University, called MEGA-ACE. One of the objectives of MEGA-ACE is to build applications on top of the Algorand Blockchain, such as a CV registry for easy verification of CV details, land record registry etc. This project will involve building such applications, using the TEAL language used by Algorand. A basic understanding of blockchains would be desirable before the internship begins.
