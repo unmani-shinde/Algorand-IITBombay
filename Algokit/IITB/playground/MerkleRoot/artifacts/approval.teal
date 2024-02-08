@@ -1,0 +1,71 @@
+#pragma version 8
+intcblock 0 1
+bytecblock 0x
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l4
+txna ApplicationArgs 0
+pushbytes 0x2000fdda // "MerkleRoot(string)string"
+==
+bnz main_l3
+err
+main_l3:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub MerkleRootcaster_1
+intc_1 // 1
+return
+main_l4:
+txn OnCompletion
+intc_0 // NoOp
+==
+bnz main_l6
+err
+main_l6:
+txn ApplicationID
+intc_0 // 0
+==
+assert
+intc_1 // 1
+return
+
+// MerkleRoot
+MerkleRoot_0:
+proto 1 1
+bytec_0 // ""
+pushbytes 0x303533356331653063373065343762376636653838623634623236303837373164333230383133616631353633366632663765663764643237636238323165632c20 // "0535c1e0c70e47b7f6e88b64b2608771d320813af15636f2f7ef7dd27cb821ec, "
+frame_dig -1
+extract 2 0
+concat
+frame_bury 0
+frame_dig 0
+len
+itob
+extract 6 0
+frame_dig 0
+concat
+frame_bury 0
+retsub
+
+// MerkleRoot_caster
+MerkleRootcaster_1:
+proto 0 0
+bytec_0 // ""
+dup
+txna ApplicationArgs 1
+frame_bury 1
+frame_dig 1
+callsub MerkleRoot_0
+frame_bury 0
+pushbytes 0x151f7c75 // 0x151f7c75
+frame_dig 0
+concat
+log
+retsub

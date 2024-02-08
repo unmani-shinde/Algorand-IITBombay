@@ -1,0 +1,54 @@
+{
+    "hints": {
+        "MerkleRoot(string)string": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQpieXRlY2Jsb2NrIDB4CnR4biBOdW1BcHBBcmdzCmludGNfMCAvLyAwCj09CmJueiBtYWluX2w0CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4MjAwMGZkZGEgLy8gIk1lcmtsZVJvb3Qoc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMKZXJyCm1haW5fbDM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgTWVya2xlUm9vdGNhc3Rlcl8xCmludGNfMSAvLyAxCnJldHVybgptYWluX2w0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2w2CmVycgptYWluX2w2Ogp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAo9PQphc3NlcnQKaW50Y18xIC8vIDEKcmV0dXJuCgovLyBNZXJrbGVSb290Ck1lcmtsZVJvb3RfMDoKcHJvdG8gMSAxCmJ5dGVjXzAgLy8gIiIKcHVzaGJ5dGVzIDB4MzAzNTMzMzU2MzMxNjUzMDYzMzczMDY1MzQzNzYyMzc2NjM2NjUzODM4NjIzNjM0NjIzMjM2MzAzODM3MzczMTY0MzMzMjMwMzgzMTMzNjE2NjMxMzUzNjMzMzY2NjMyNjYzNzY1NjYzNzY0NjQzMjM3NjM2MjM4MzIzMTY1NjMyYzIwIC8vICIwNTM1YzFlMGM3MGU0N2I3ZjZlODhiNjRiMjYwODc3MWQzMjA4MTNhZjE1NjM2ZjJmN2VmN2RkMjdjYjgyMWVjLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBNZXJrbGVSb290X2Nhc3RlcgpNZXJrbGVSb290Y2FzdGVyXzE6CnByb3RvIDAgMApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmZyYW1lX2J1cnkgMQpmcmFtZV9kaWcgMQpjYWxsc3ViIE1lcmtsZVJvb3RfMApmcmFtZV9idXJ5IDAKcHVzaGJ5dGVzIDB4MTUxZjdjNzUgLy8gMHgxNTFmN2M3NQpmcmFtZV9kaWcgMApjb25jYXQKbG9nCnJldHN1Yg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MerkleRoot",
+        "methods": [
+            {
+                "name": "MerkleRoot",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "name"
+                    }
+                ],
+                "returns": {
+                    "type": "string"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}
