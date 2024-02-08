@@ -1,0 +1,13 @@
+[
+    {
+        "final_hashes": [
+            "cf21e4eaf18cda53583e057753f70fe69447052d714467e19d1197d79ff396ac",
+            "7a596478c0897b6d9026e4c0fa3c5df9fea187a7263bb68e81fdbeb65b179118",
+            "bf91c6ed3f08f59f1877fdf9f464af2562e2dee052a039d21d0ac7025bd12d26",
+            "a16b1b183815acc5a86065968023556c30b8d5c492f44a839209e6633d1e4db3",
+            "90209df5451f48a469fe09a42bb3c3c598f7cac564bf529f289938ca7c5d06ed",
+            "a53cd039a7445c4cbc3ad032b21d1c59e8fcd50acab83a85a47295e7fdd65b91"
+        ],
+        "merkel_root": "87a548234b1de5b56fedf0419dd7bac1c57fe09b323a1a0d10a4ce5e87a416c4"
+    }
+]
