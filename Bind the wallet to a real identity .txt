@@ -1,3 +1,0 @@
-Bind the wallet to a real identity with KYC
-- Use to sign documents, proving the real identity agreed to sign the document
-- Verify: check the real identity bound to the document, without exposing their full identity, and check against the signature
