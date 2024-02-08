@@ -1,0 +1,25 @@
+.resendCodeContainer {
+  margin-bottom: 20px;
+}
+.resendCodeContainer label {
+  font-size: 14px;
+}
+.enabledSpan {
+  color: #007bff;
+}
+.enabledSpan:hover {
+  cursor: pointer;
+}
+.disabledSpan {
+  color: #8a8a8a;
+}
+.disabledSpan:hover {
+  cursor: not-allowed;
+}
+.reminder {
+  margin-left: 15px;
+  color: red;
+}
+.btn-height {
+  height: calc(100% - 1px); /* Adjust height as needed */
+}

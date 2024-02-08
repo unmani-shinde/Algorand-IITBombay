@@ -1,0 +1,19 @@
+.radioButtonContainer {
+    margin-top: 5px;
+}
+.yesBtn {
+    background-color: rgb(212, 212, 212);
+}
+.yesbtn.active {
+    color: white;
+    background-color: #0077ff;
+}
+.noBtn {
+    background-color: rgb(212, 212, 212);
+    margin-left: 20px;
+}
+.nobtn.active {
+    color: white;
+    background-color: #0077ff;
+    margin-left: 20px;
+}

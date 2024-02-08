@@ -1,0 +1,10 @@
+<degree>
+  <student>
+    <name>John Doe4</name>
+    <rollno>1234564</rollno>
+    <university>XYZ University</university>
+    <program>Bachelor of Science in Computer Science</program>
+    <year>2023</year>
+    <gpa>3.7</gpa>
+  </student>
+</degree>

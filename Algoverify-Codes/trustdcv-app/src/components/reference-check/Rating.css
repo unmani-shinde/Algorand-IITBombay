@@ -1,0 +1,45 @@
+.ratingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+.ratingNumber {
+    text-align: center;
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    margin-right: 20px;
+    color: rgb(45, 45, 45);
+    background-color: rgb(212, 212, 212);
+}
+.ratingNumber:hover {
+    color: white;
+    background-color: #0077ff;
+    transition: transform 0.4s ease-in-out;
+    transform: scale(1.1);
+}
+.ratingNumber.active {
+    color: white;
+    background-color: #0077ff;
+    transform: scale(1.1);
+}
+.deleteStrength {
+    margin-bottom: 15px;
+    margin-left: 10px;
+}
+.icon {
+    fill: #707070;
+}
+.icon:hover {
+    fill: #303030;
+    transition: transform 0.4s ease-in-out;
+    transform: scale(1.3);
+    cursor: pointer;
+}
