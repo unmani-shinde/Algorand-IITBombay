@@ -57,5 +57,3 @@ Table of Contents
 12. Appendices
     - Supporting documentation
     - Technical diagrams and architecture
-
-Note: This table of contents provides a general structure for a 9-month project report. You may need to adjust and customize it based on the specific milestones, activities, and deliverables of your Algorand CV verification project.

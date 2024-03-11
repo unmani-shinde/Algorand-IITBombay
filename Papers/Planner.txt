@@ -23,9 +23,6 @@ Month 9:
 2. Monitor your application's performance and user feedback. Continuously monitor your application's metrics to ensure it meets the needs of your users.
 3. Plan for future improvements and updates. Consider adding new features or improving existing ones to keep your application up-to-date and relevant.
 
-Remember that building an application on top of the Algorand blockchain is a continuous process that requires constant learning, improvement, and adaptation. Stay curious, stay focused, and stay motivated. Best of luck!
-
-
 
 
 
