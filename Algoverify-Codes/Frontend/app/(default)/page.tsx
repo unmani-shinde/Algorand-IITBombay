@@ -11,12 +11,12 @@ import Testimonials from '@/components/testimonials'
 
 export default function Home() {
   return (
-    <>
+    <div className='overflow-hidden bg-gradient-to-tl from-black via-zinc-500/10 to-black'>
       <Hero />
       <Features />
       <Zigzag />
       <Testimonials />
       <Newsletter />
-    </>
+    </div>
   )
 }
