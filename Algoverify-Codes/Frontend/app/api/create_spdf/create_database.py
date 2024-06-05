@@ -66,37 +66,41 @@ class MerkleTree:
 
 
 
-def main(student_database_file):
-  
-  df = pd.read_csv(student_database_file)
-  df['First Name'] = df.apply(lambda row: (row['First Name'] + " " + (row['Last Name'] if isinstance(row['Middle Name'], float) else row['Middle Name'] + " " + row['Last Name']).strip()), axis=1)
-  df.drop(columns=['Middle Name', 'Last Name'], inplace=True)
-  df.rename(columns={'First Name': 'Full Name'}, inplace=True)
-  
-  semi_private_database = {}
-  index = 0
-  
-  for student in df.values:
-    student_data_list = student.tolist()
-    student_data_list = [str(info) if isinstance(info, (int, float)) else info for info in student_data_list]
-    merkle_tree = MerkleTree(student_data_list)
-    headers = merkle_tree.get_headers()
-    details = merkle_tree.get_details()
-    mini_dict = {}
-    mini_dict["SID"] = student_data_list[0]
+def main(student_database_file):  
+    df = pd.read_csv(student_database_file)
     
-    for i in range(len(headers)):
-      mini_dict[headers[i]] = details[i]
+    df['First Name'] = df.apply(lambda row: (row['First Name'] + " " + (row['Last Name'] if isinstance(row['Middle Name'], float) else row['Middle Name'] + " " + row['Last Name']).strip()), axis=1)
+    df.drop(columns=['Middle Name', 'Last Name'], inplace=True)
+    df.rename(columns={'First Name': 'Full Name'}, inplace=True)
 
-    mini_dict["SuperRootIdentifier"] = merkle_tree.get_root()
-    semi_private_database[index] = mini_dict
-    index +=1
+    
+    semi_private_database = {}
+    index = 0
+    
+    for student in df.values:
+        student_data_list = student.tolist()
+        student_data_list = [str(info) if isinstance(info, (int, float)) else info for info in student_data_list]
+        merkle_tree = MerkleTree(student_data_list)
+        headers = merkle_tree.get_headers()
+        details = merkle_tree.get_details()
+        mini_dict = {}
+        mini_dict["SID"] = student_data_list[0]
+        
+        for i in range(len(headers)):
+            mini_dict[headers[i]] = details[i]
 
-  spdb_df = pd.DataFrame(semi_private_database)
-  spdb_df = spdb_df.T
+        mini_dict["SuperRootIdentifier"] = merkle_tree.get_root()
+        semi_private_database[index] = mini_dict
+        index +=1
 
+    spdb_df = pd.DataFrame(semi_private_database)
+    spdb_df = spdb_df.T
+    
+    return spdb_df
 
-  return spdb_df
+def create_database(student_database_file):
+    main(student_database_file)
+
 
 
   

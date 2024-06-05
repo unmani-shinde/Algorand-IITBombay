@@ -1,9 +1,11 @@
+import flowbite from "flowbite-react/tailwind";
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx}',
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
+    flowbite.content(),
   ],
   theme: {
     extend: {
@@ -73,5 +75,6 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/forms'),
+    flowbite.plugin(),
   ],
 }
