@@ -49,19 +49,19 @@ export default function Hero() {
           <div className="flex flex-col justify-around items-left mt-32 ml-32">
             <div className="flex flex-row items-center mb-8">
               <Fingerprint className="text-purple-600" size={48} />
-              <p className="text-lg text-zinc-300 ml-6 font-medium">Security</p>
+              <p className="text-lg text-zinc-300 ml-6 font-medium">Secure</p>
             </div>
             <div className="flex flex-row items-center mb-8">
               <Clock className="text-purple-600" size={48} />
-              <p className="text-lg text-gray-300 ml-6 font-medium">Efficiency</p>
+              <p className="text-lg text-gray-300 ml-6 font-medium">Efficient</p>
             </div>
             <div className="flex flex-row items-center mb-8">
               <Globe className="text-purple-600" size={48} />
-              <p className="text-lg text-gray-300 ml-6 font-medium">Global Compliance</p>
+              <p className="text-lg text-gray-300 ml-6 font-medium">Globally Compliant</p>
             </div>
             <div className="flex flex-row items-center">
               <CheckCircle className="text-purple-600" size={48} />
-              <p className="text-lg text-gray-300 ml-6 font-medium">Reliability</p>
+              <p className="text-lg text-gray-300 ml-6 font-medium">Reliable</p>
             </div>
           </div>
         </div>
