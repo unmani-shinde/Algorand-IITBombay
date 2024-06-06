@@ -1,0 +1,72 @@
+{
+    "hints": {
+        "add_cid(byte[])void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        },
+        "read_cids()byte[]": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQpieXRlY2Jsb2NrIDB4NjM2OTY0NzMgMHgKdHhuIE51bUFwcEFyZ3MKaW50Y18wIC8vIDAKPT0KYm56IG1haW5fbDYKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhiMTU3Y2U5YiAvLyAiYWRkX2NpZChieXRlW10pdm9pZCIKPT0KYm56IG1haW5fbDUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgyNDYyMmM3ZSAvLyAicmVhZF9jaWRzKClieXRlW10iCj09CmJueiBtYWluX2w0CmVycgptYWluX2w0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIHJlYWRjaWRzY2FzdGVyXzMKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDU6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgYWRkY2lkY2FzdGVyXzIKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDY6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KYm56IG1haW5fbDgKZXJyCm1haW5fbDg6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIGFkZF9jaWQKYWRkY2lkXzA6CnByb3RvIDEgMApieXRlY18wIC8vICJjaWRzIgphcHBfZ2xvYmFsX2dldApsZW4KaW50Y18wIC8vIDAKPgpibnogYWRkY2lkXzBfbDIKYnl0ZWNfMCAvLyAiY2lkcyIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmFwcF9nbG9iYWxfcHV0CmIgYWRkY2lkXzBfbDMKYWRkY2lkXzBfbDI6CmJ5dGVjXzAgLy8gImNpZHMiCmJ5dGVjXzAgLy8gImNpZHMiCmFwcF9nbG9iYWxfZ2V0CnB1c2hieXRlcyAweDdjIC8vICJ8Igpjb25jYXQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdAphcHBfZ2xvYmFsX3B1dAphZGRjaWRfMF9sMzoKaW50Y18xIC8vIDEKcmV0dXJuCgovLyByZWFkX2NpZHMKcmVhZGNpZHNfMToKcHJvdG8gMCAxCmJ5dGVjXzEgLy8gIiIKYnl0ZWNfMCAvLyAiY2lkcyIKYXBwX2dsb2JhbF9nZXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBhZGRfY2lkX2Nhc3RlcgphZGRjaWRjYXN0ZXJfMjoKcHJvdG8gMCAwCmJ5dGVjXzEgLy8gIiIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKY2FsbHN1YiBhZGRjaWRfMApyZXRzdWIKCi8vIHJlYWRfY2lkc19jYXN0ZXIKcmVhZGNpZHNjYXN0ZXJfMzoKcHJvdG8gMCAwCmJ5dGVjXzEgLy8gIiIKY2FsbHN1YiByZWFkY2lkc18xCmZyYW1lX2J1cnkgMApwdXNoYnl0ZXMgMHgxNTFmN2M3NSAvLyAweDE1MWY3Yzc1CmZyYW1lX2RpZyAwCmNvbmNhdApsb2cKcmV0c3Vi",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 1,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "cids": {
+                    "type": "bytes",
+                    "key": "cids",
+                    "descr": ""
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "CID",
+        "methods": [
+            {
+                "name": "add_cid",
+                "args": [
+                    {
+                        "type": "byte[]",
+                        "name": "cid"
+                    }
+                ],
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "read_cids",
+                "args": [],
+                "returns": {
+                    "type": "byte[]"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

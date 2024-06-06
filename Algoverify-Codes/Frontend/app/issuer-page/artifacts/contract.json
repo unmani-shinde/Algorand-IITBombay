@@ -1,0 +1,25 @@
+{
+    "name": "CID",
+    "methods": [
+        {
+            "name": "add_cid",
+            "args": [
+                {
+                    "type": "byte[]",
+                    "name": "cid"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            }
+        },
+        {
+            "name": "read_cids",
+            "args": [],
+            "returns": {
+                "type": "byte[]"
+            }
+        }
+    ],
+    "networks": {}
+}

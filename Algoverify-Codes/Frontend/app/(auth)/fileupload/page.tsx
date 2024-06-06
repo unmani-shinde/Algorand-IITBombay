@@ -32,7 +32,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="flex flex-col items-center w-full max-w-md p-4 rounded-lg shadow-md">
-        <h2 className="text-4xl text-center font-semibold mb-6">Help your alumni. Upload files now.</h2>
+        <h2 className="text-4xl text-center font-semibold mb-6">Help your alumni. Upload files below.</h2>
         <h2 className="text-lg text-center mb-12">Make sure it's in .csv format and the first 2 fields are the Student ID and Name, in that order. We'll handle the rest</h2>
         <div className="mb-12">
           <div className="text-center mb-12">

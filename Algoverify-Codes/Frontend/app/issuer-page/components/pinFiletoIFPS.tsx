@@ -1,4 +1,5 @@
 import axios from 'axios';
+import  addCidToAlgorand from './addCID';
 
 async function pinFiletoIPFS(file:Blob) {
     console.log("Uploading Main File");
@@ -29,7 +30,7 @@ async function pinFiletoIPFS(file:Blob) {
 		  });
           const university_hash = res.data.IpfsHash;
           console.log("Semi Private Database uploaded to: ",university_hash);
-          
+		  addCidToAlgorand(university_hash);
 
 		} catch (error) {
 		  console.log(error);

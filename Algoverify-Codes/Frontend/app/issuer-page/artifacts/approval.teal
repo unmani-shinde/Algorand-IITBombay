@@ -1,0 +1,119 @@
+#pragma version 8
+intcblock 0 1
+bytecblock 0x63696473 0x
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l6
+txna ApplicationArgs 0
+pushbytes 0xb157ce9b // "add_cid(byte[])void"
+==
+bnz main_l5
+txna ApplicationArgs 0
+pushbytes 0x24622c7e // "read_cids()byte[]"
+==
+bnz main_l4
+err
+main_l4:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub readcidscaster_3
+intc_1 // 1
+return
+main_l5:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub addcidcaster_2
+intc_1 // 1
+return
+main_l6:
+txn OnCompletion
+intc_0 // NoOp
+==
+bnz main_l8
+err
+main_l8:
+txn ApplicationID
+intc_0 // 0
+==
+assert
+intc_1 // 1
+return
+
+// add_cid
+addcid_0:
+proto 1 0
+bytec_0 // "cids"
+app_global_get
+len
+intc_0 // 0
+>
+bnz addcid_0_l2
+bytec_0 // "cids"
+frame_dig -1
+extract 2 0
+app_global_put
+b addcid_0_l3
+addcid_0_l2:
+bytec_0 // "cids"
+bytec_0 // "cids"
+app_global_get
+pushbytes 0x7c // "|"
+concat
+frame_dig -1
+extract 2 0
+concat
+app_global_put
+addcid_0_l3:
+intc_1 // 1
+return
+
+// read_cids
+readcids_1:
+proto 0 1
+bytec_1 // ""
+bytec_0 // "cids"
+app_global_get
+frame_bury 0
+frame_dig 0
+len
+itob
+extract 6 0
+frame_dig 0
+concat
+frame_bury 0
+retsub
+
+// add_cid_caster
+addcidcaster_2:
+proto 0 0
+bytec_1 // ""
+txna ApplicationArgs 1
+frame_bury 0
+frame_dig 0
+callsub addcid_0
+retsub
+
+// read_cids_caster
+readcidscaster_3:
+proto 0 0
+bytec_1 // ""
+callsub readcids_1
+frame_bury 0
+pushbytes 0x151f7c75 // 0x151f7c75
+frame_dig 0
+concat
+log
+retsub
