@@ -30,7 +30,8 @@ async function pinFiletoIPFS(file:Blob) {
 		  });
           const university_hash = res.data.IpfsHash;
           console.log("Semi Private Database uploaded to: ",university_hash);
-		  addCidToAlgorand(university_hash);
+		  //addCidToAlgorand(university_hash);
+		  return university_hash
 
 		} catch (error) {
 		  console.log(error);

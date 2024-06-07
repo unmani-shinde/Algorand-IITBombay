@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
 
 interface FormData {
@@ -16,6 +17,7 @@ const VerifierPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [SCID,setSCID] = useState<String>("")
 
   useEffect(() => {
     if (showModal) {
@@ -25,37 +27,57 @@ const VerifierPage: React.FC = () => {
     }
   }, [showModal]);
 
+  useEffect(() => {
+    setSCID("Qmb6VRZ8xyUgVTYSyNukMgEMVZEZTHCCFewTq5MqfcgRn6")
+    
+  }, []);
+  
+  const fetchUniversityCID = async() =>{
+    const blob = await ExportCSV(SCID);
+    let superTable = new Blob([blob as BlobPart]);
+    const formData = new FormData();
+    formData.append('super_database', superTable, 'data.csv');
+
+    const res = await fetch(`http://127.0.0.1:5000/get-uni-cid?university=${formData_.university}`, {
+      method: 'POST',
+      body: formData,
+      
+      
+    });
+
+    if (!res.ok) {
+      throw new Error('I failed');
+    }
+
+    const data = await res.json();
+    const text_res = data.cid;
+    console.log('University CID:',text_res);
+
+    return text_res
+
+  }
+
   const fetchCSV = async () => {
-    const CID = "Qmb9ZCXiDZtQN1uF4EfauUd8Gp7Ko1KieEkvL8u7v3Pq6x"; // This can be dynamic as needed
-    const URL = `https://ipfs.io/ipfs/${CID}`;
-
+    
     try {
-      const response = await fetch(URL);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const csvText = await response.text();
-
-      // Split the CSV text into an array of rows
-      const rows = csvText.split('\n');
-
-      // Parse the CSV rows into an array of arrays representing columns
-      const csvData = rows.map(row => row.split(','));
-
-      // Format the data into a CSV string
-      const formattedCsv = csvData.map(row => row.join(',')).join('\n');
+      const CID = await fetchUniversityCID(); // This can be dynamic as needed
+  
+           
 
       // Create a Blob object from the formatted CSV string
-      const blob = new Blob([formattedCsv], { type: 'text/csv' });
+      const blob = await ExportCSV(CID)
+      let fileBlob = new Blob([blob as BlobPart]);
 
       // Create a FormData object and append the Blob to it
       const formData = new FormData();
-      formData.append('database', blob, 'data.csv');
+      formData.append('database', fileBlob, 'data.csv');
 
       // Now you can send the FormData object to the server using fetch
-      const verificationResponse = await fetch(`http://127.0.0.1:5000/verifier-page?student_name=${encodeURIComponent(formData_.student_name)}&student_SID=${encodeURIComponent(formData_.student_SID)}&student_grad_year=${encodeURIComponent(formData_.student_grad_year)}`, {
+      const verificationResponse = await fetch(`http://127.0.0.1:5000/verifier-page?student_name=${formData_.student_name}&student_SID=${formData_.student_SID}&student_grad_year=${formData_.student_grad_year}`, {
         method: 'POST',
         body: formData,
+        mode:'cors'
+       
       });
 
       if (!verificationResponse.ok) {

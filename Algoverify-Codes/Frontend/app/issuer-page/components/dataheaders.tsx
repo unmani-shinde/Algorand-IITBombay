@@ -11,7 +11,7 @@ function DataHeaders() {
     
     
     return(
-        <div className="flex flex-col items-center">
+        <div className="mt-4 flex flex-col items-center">
             <div className="flex flex-col items-center">
         <div className="mb-2 flex flex-col items-center">
         <Label className="text-white font-semibold" htmlFor="file-upload-helper-text" value="Enter the Data Headers (in the sequence they appear in the data)" />

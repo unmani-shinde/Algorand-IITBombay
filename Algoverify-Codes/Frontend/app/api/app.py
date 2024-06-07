@@ -8,10 +8,59 @@ from verify_record.verify_record import verify
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/get-uni-cid', methods=["POST"])
+def get_CID():
+    super_database = request.files.get('super_database')
+    university = request.args.get('university')
+
+    if not super_database:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    if not university:
+        return jsonify({"error": "No university specified"}), 400
+
+    super_database_df = pd.read_csv(super_database)
+    university = university.strip()
+
+    # Check if the university exists in the DataFrame
+    if university not in super_database_df['Name of University:'].values:
+        return jsonify({"cid": "-1"}), 200
+
+    # Find the UCID for the given university
+    row = super_database_df[super_database_df['Name of University:'] == university]
+    if not row.empty:
+        cid = str(row.iloc[0]['University Content Identifier (UCID):'])
+    else:
+        cid = "-1"
+
+    return jsonify({"cid": cid}), 200
+
+
+
+
+@app.route('/dun-dun-dun',methods=["POST"])
+def update_SCID_DB():
+    scid_database = request.files.get('scid_database')
+    university = request.args.get('university')
+    print("University name: ",university)
+    ucid = request.args.get('ucid')
+    university = university.strip()
+    scid_database = pd.read_csv(scid_database)
+    if(university not in scid_database["Name of University:"].values):
+        new_data = [{"ID:":str(scid_database.shape[0]+1),"Name of University:":university,"University Content Identifier (UCID):":ucid}]
+        new_data = pd.DataFrame(new_data)
+        scid_database = scid_database._append(new_data)
+        json_response = scid_database.to_json(orient='records')
+        print(json_response)
+        return json_response, 200
+    else:
+        return jsonify({'error': 'kuch toh hua hai gadbad'}), 500
+
+
+
 @app.route('/verifier-page', methods=['POST'])
 def get_verified():
     database = request.files.get('database')
-    print(database)
     student_name = unquote(request.args.get('student_name'))
     student_sid = request.args.get('student_SID')
     student_grad_year = request.args.get('student_grad_year')
@@ -33,7 +82,6 @@ def get_verified():
 @app.route('/issuer-page', methods=['POST'])
 def upload_file():
     file = request.files.get('file')
-    print(request.files)
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
