@@ -1,11 +1,11 @@
 {
-    "name": "CID",
+    "name": "SCID_app",
     "methods": [
         {
-            "name": "add_cid",
+            "name": "update_SCID",
             "args": [
                 {
-                    "type": "byte[]",
+                    "type": "string",
                     "name": "cid"
                 }
             ],
@@ -17,7 +17,7 @@
             "name": "read_cids",
             "args": [],
             "returns": {
-                "type": "byte[]"
+                "type": "string"
             }
         }
     ],

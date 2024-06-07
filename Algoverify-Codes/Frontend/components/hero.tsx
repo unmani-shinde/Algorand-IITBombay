@@ -36,19 +36,19 @@ export default function Hero() {
             </div>
             {/* Buttons for Universities and Employers */}
             <div data-aos="fade-right" data-aos-delay="300">
-              <a className="btn text-white bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-lg shadow mb-4" href="#0">
-                I am a university
+              <a className="btn text-white bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-lg shadow mb-4" href="#zigzag">
+                I am a university personnel
               </a>
-              <a className="btn text-white bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-lg shadow ml-6" href="#0">
+              <a className="btn text-white bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-lg shadow ml-6" href="#features">
                 I am an employer
               </a>
             </div>
           </div>
           {/* Right Column: Illustrations and Icons */}
           {/* Descriptive Icons Section */}
-          <div className="flex flex-col justify-around items-left mt-32 ml-32">
-            <div className="flex flex-row items-center mb-8">
-              <Fingerprint className="text-purple-600" size={48} />
+          <div className="flex flex-col justify-around items-left mt-32 ml-32" data-aos="fade-right">
+            <div className="flex flex-row items-center mb-8" >
+              <Fingerprint className="text-purple-600"  size={48} />
               <p className="text-lg text-zinc-300 ml-6 font-medium">Secure</p>
             </div>
             <div className="flex flex-row items-center mb-8">

@@ -1,9 +1,26 @@
-import Link from 'next/link'
-import MobileMenu from './mobile-menu'
+'use client'
+
+import Link from 'next/link';
+import React, { useEffect, useRef, useState } from 'react';
+import MobileMenu from './mobile-menu';
 
 export default function Header() {
+  const ref = useRef<HTMLElement>(null);
+  const [isIntersecting, setIntersecting] = useState(true);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(([entry]) =>
+      setIntersecting(entry.isIntersecting)
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className="absolute w-full z-30">
+    <header ref={ref} className={`fixed w-full z-30 ${isIntersecting ? '' : 'bg-zinc-900/500 border-b border-zinc-800'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-20">
           {/* Site branding */}
@@ -38,9 +55,8 @@ export default function Header() {
           </nav>
 
           <MobileMenu />
-
         </div>
       </div>
     </header>
-  )
+  );
 }
