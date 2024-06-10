@@ -1,7 +1,7 @@
 import axios from 'axios';
 import  addCidToAlgorand from './addCID';
 
-async function pinFiletoIPFS(file:Blob) {
+async function pinFiletoIPFS(file:Blob,file_name:String) {
     console.log("Uploading Main File");
 		const formData = new FormData();
         console.log(file);
@@ -9,7 +9,7 @@ async function pinFiletoIPFS(file:Blob) {
 		formData.append('file', file)
 
     const pinataMetadata = JSON.stringify({
-		  name: "meow",
+		  name: file_name,
 		})
 		formData.append('pinataMetadata',pinataMetadata);
 		

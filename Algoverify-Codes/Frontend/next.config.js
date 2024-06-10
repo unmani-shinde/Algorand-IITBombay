@@ -1,10 +1,19 @@
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
 module.exports = {
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:5328/:path*', // Proxy to Backend
-      },
-    ]
+  webpack: (config, { isServer }) => {
+    config.plugins.push(new NodePolyfillPlugin());
+
+    // Ensure node modules used in server-side code are handled correctly
+    if (!isServer) {
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+        // Add other modules as necessary
+      };
+    }
+
+    return config;
   },
-}
+};

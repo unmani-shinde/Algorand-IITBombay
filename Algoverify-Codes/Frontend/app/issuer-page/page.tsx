@@ -6,6 +6,7 @@ import { Label,TextInput } from "flowbite-react"
 import DataHeaders from "./components/dataheaders"
 import pinFiletoIPFS from "./components/pinFiletoIFPS"
 import ExportCSV from "../verifier-page/components/verifyCSV"
+import deleteFromIPFS from "../components/deleteFromIPFS"
 import algosdk from 'algosdk';
 import * as abi from './artifacts/contract.json';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
@@ -14,15 +15,17 @@ const appIndex = 678299449;
 
 function Issuer() {
     const [fileUploaded,setFile] = useState<File>()
-    const [university,setUniversity] = useState<String>("")
-    const [SCID,setSCID] = useState<String>("")
+    const [university,setUniversity] = useState<string>("")
+    const [SCID,setSCID] = useState<string>("")
     const [globalState, setGlobalState] = useState<any>(null);
     const [methodArg, setMethodArg] = useState<string>('');
     const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
 
     useEffect(() => {
       const initialize = async () => {
-        // Define the mnemonic and address
+        console.log("Use effect called");
+        
+        // Define the mnemonic a nd address
         const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC as string;
         const addr = process.env.NEXT_PUBLIC_ALGO_ADDR as string;
   
@@ -46,6 +49,9 @@ function Issuer() {
         const accountInfo = await algodClient.accountInformation(addr).do();
         console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
         //setBalance(accountInfo.amount / 1000000);
+
+        await readGlobalState();
+       
       };
   
       initialize();
@@ -127,14 +133,13 @@ function Issuer() {
         });
 
         if (response.ok) {
+          console.log(globalState,typeof(globalState));
+          
           const data = await response.json();
           const csvString = convertJsonToCsv(data);
           const blob = new Blob([csvString], { type: 'text/csv' });
-          const university_hash = await pinFiletoIPFS(blob) //UCID
-          // setMethodArg(new_SCID);
-          // handleUpdate();
-          
-          let scidCSV = await ExportCSV(globalState) 
+          const university_hash = await pinFiletoIPFS(blob,university)
+          let scidCSV = await ExportCSV(globalState)
           fileBlob = new Blob([scidCSV as BlobPart]);
 
         const requestFormData = new FormData()
@@ -150,10 +155,12 @@ function Issuer() {
             const data = await response.json();
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
-            const new_SCID = await pinFiletoIPFS(blob)
+            const new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
             setMethodArg(new_SCID);
             handleUpdate();
-            //setSCID(new_SCID) 
+            //console.log("New SCID: ",new_SCID);
+            await deleteFromIPFS(globalState);
+            
           }
           else{
             console.log(response);
