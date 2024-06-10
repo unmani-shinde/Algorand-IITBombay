@@ -13,17 +13,28 @@ const AlgorandComponent: React.FC = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      // Create account
-      const account = algosdk.generateAccount();
-      setAccount(account);
-      console.log('\nMnemonic:', algosdk.secretKeyToMnemonic(account.sk));
-      console.log('\nAddress:', account.addr);
+      // Define the mnemonic and address
+      const mnemonic = 'write flat glare bid later fame egg rich hope camera impose sort discover girl modify stay curious artefact flag state task anchor mean abandon mouse';
+      const addr = 'KNIH4DLNOLV2UXEWVPC3IXDOF6MJMFOFHVQ5ZEMSOASIRAKUIIRDLCY7EI';
+
+      // Recover the account from the mnemonic
+      const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
+
+      // Set the account
+      setAccount({
+        addr: addr,
+        sk: recoveredAccount.sk
+      });
+
+      // Log the mnemonic and address (for verification purposes)
+      console.log('\nMnemonic:', mnemonic);
+      console.log('\nAddress:', addr);
 
       // Wait for account to be funded
-      await waitForFunding(account.addr);
+      await waitForFunding(addr);
 
       // Get account balance
-      const accountInfo = await algodClient.accountInformation(account.addr).do();
+      const accountInfo = await algodClient.accountInformation(addr).do();
       setBalance(accountInfo.amount / 1000000);
     };
 

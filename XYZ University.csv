@@ -1,0 +1,13 @@
+SID,First Name,Middle Name,Last Name,DOB,Contact Email,Contact Phone Number,University,Graduation Year,Degree Awarded,Program of Study (Major),Program of Study (Minor),Credits Completed,GPA
+10001,Alice,Anne,Smith,1998-01-25,alice.smith@email.com,555-123-4567,XYZ University,2023,Bachelor of Science,Computer Science,Mathematics,120,3.8
+10002,Bob,Charles,Jones,1997-07-10,bob.jones@email.com,555-789-0123,XYZ University,2023,Bachelor of Arts,English Literature,History,90,3.5
+10003,Charlie,,Brown,2000-03-12,charlie.brown@email.com,555-456-7890,XYZ University,2023,Bachelor of Science,Engineering,None,135,3.9
+10004,Diana,,Garcia,1999-11-04,diana.garcia@email.com,555-321-6543,XYZ University,2023,Bachelor of Arts,Psychology,Sociology,120,3.7
+10005,Emily,Rose,Wilson,1998-05-18,emily.wilson@email.com,555-987-3210,XYZ University,2023,Bachelor of Business Administration,Marketing,Management,150,3.2
+10006,Frank,William,Johnson,2000-09-21,frank.johnson@email.com,555-012-3456,XYZ University,2024,Bachelor of Science,Biology,Chemistry,105,3.4
+10007,Gloria,,Lopez,1999-02-07,gloria.lopez@email.com,555-543-2109,XYZ University,2024,Bachelor of Arts,Art History,Philosophy,90,3.9
+10008,Henry,David,Miller,1998-12-16,henry.miller@email.com,555-654-9870,XYZ University,2024,Bachelor of Science,Physics,Astronomy,135,3.6
+10009,Isabella,,Lee,2000-06-08,isabella.lee@email.com,555-210-9876,XYZ University,2024,Bachelor of Arts,International Relations,Economics,120,3.8
+10010,Jack,Daniels,Jackson,1997-10-29,jack.daniels@email.com,555-876-5432,XYZ University,2025,Bachelor of Science,Marine Biology,Environmental Science,105,3.5
+11001,Olivia,Jane,Moore,1999-05-12,olivia.moore@email.com,555-234-5678,XYZ University,2025,Bachelor of Arts,History,Political Science,120,3.9
+11002,William,Robert,Brown,2000-01-04,william.brown@email.com,555-678-9012,XYZ University,2025,Bachelor of Science,,Political Science,120,3.9
