@@ -1,5 +1,4 @@
 import axios from 'axios';
-import  addCidToAlgorand from './addCID';
 
 async function pinFiletoIPFS(file:Blob,file_name:String) {
     console.log("Uploading Main File");
@@ -34,7 +33,7 @@ async function pinFiletoIPFS(file:Blob,file_name:String) {
 		  return university_hash
 
 		} catch (error) {
-		  console.log(error);
+		  console.log("pin file error", error);
 		}
 
     

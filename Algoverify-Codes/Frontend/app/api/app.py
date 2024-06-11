@@ -42,11 +42,13 @@ def get_CID():
 def update_SCID_DB():
     scid_database = request.files.get('scid_database')
     university = request.args.get('university')
-    print("University name: ",university)
+    print("University name:",university)
     ucid = request.args.get('ucid')
     university = university.strip()
     scid_database = pd.read_csv(scid_database)
-    if(university not in scid_database["Name of University:"].values):
+
+    print("df values: ", scid_database["Name of University:"].values)
+    if (university not in scid_database["Name of University:"].values):
         new_data = [{"ID:":str(scid_database.shape[0]+1),"Name of University:":university,"University Content Identifier (UCID):":ucid}]
         new_data = pd.DataFrame(new_data)
         scid_database = scid_database._append(new_data)
@@ -54,7 +56,8 @@ def update_SCID_DB():
         print(json_response)
         return json_response, 200
     else:
-        return jsonify({'error': 'kuch toh hua hai gadbad'}), 500
+        cid = "-1"
+        return jsonify({'cid': cid}), 200
 
 
 

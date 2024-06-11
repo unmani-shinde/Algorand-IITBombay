@@ -1,7 +1,7 @@
 "use client"
 
 import { FileUpload } from "./components/fileupload"
-import { useState,useEffect } from "react"
+import { useState,useEffect ,useRef} from "react"
 import { Label,TextInput } from "flowbite-react"
 import DataHeaders from "./components/dataheaders"
 import pinFiletoIPFS from "./components/pinFiletoIFPS"
@@ -18,67 +18,51 @@ function Issuer() {
     const [university,setUniversity] = useState<string>("")
     const [SCID,setSCID] = useState<string>("")
     const [globalState, setGlobalState] = useState<any>(null);
-    const [methodArg, setMethodArg] = useState<string>('');
+    //const [methodArg, setMethodArg] = useState<string>('');
+    const methodArg = useRef('')
     const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
+    let new_SCID = ""
+
 
     useEffect(() => {
       const initialize = async () => {
-        console.log("Use effect called");
-        
-        // Define the mnemonic a nd address
         const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC as string;
         const addr = process.env.NEXT_PUBLIC_ALGO_ADDR as string;
-  
-        // Recover the account from the mnemonic
         const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
-  
-        // Set the account
         setAccount({
           addr: addr,
           sk: recoveredAccount.sk
         });
-  
-        // Log the mnemonic and address (for verification purposes)
-        //console.log('\nMnemonic:', mnemonic);
-        //console.log('\nAddress:', addr);
-  
-        // Wait for account to be funded
-        //await waitForFunding(addr);
-  
-        // Get account balance
         const accountInfo = await algodClient.accountInformation(addr).do();
         console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
-        //setBalance(accountInfo.amount / 1000000);
-
         await readGlobalState();
-       
       };
-  
       initialize();
     }, []);
 
     const readGlobalState = async () => {
       const appInfo = await algodClient.getApplicationByID(appIndex).do();
       const globalState = appInfo.params['global-state'];
-  
       const scidState = globalState.find(
         (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
           const key = Buffer.from(item.key, 'base64').toString('utf8');
           return key === 'SCID';
         }
       );
-  
       let value: string | null = null;
       if (scidState && scidState.value.type === 1) {
         value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
       }
-  
       setGlobalState(value);
       console.log('SCID Value:', value);
     };
 
     const callUpdateSCID = async () => {
       if (!account) return;
+      if (methodArg.current == "" || methodArg.current == " " || methodArg.current == "-1") {
+        console.log("methodArg empty:", methodArg.current);
+        return;
+      }
       
       const suggestedParams = await algodClient.getTransactionParams().do();
       const atc = new algosdk.AtomicTransactionComposer();
@@ -89,7 +73,7 @@ function Issuer() {
       atc.addMethodCall({
         appID: appIndex,
         method: updateMethod,
-        methodArgs: [methodArg], // Use the state value as the method argument
+        methodArgs: [methodArg.current], // Use the state value as the method argument
         sender: account.addr,
         suggestedParams,
         signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
@@ -104,10 +88,6 @@ function Issuer() {
       await readGlobalState();
     };
 
-    const handleUpdate = async () => {
-      await callUpdateSCID();
-    };
-
     const handleFileChange = (event:any) => {
         setFile(event.target.files[0]);
       };
@@ -119,8 +99,6 @@ function Issuer() {
     
       const handleClick = async () => {
         console.log("File Name: ",fileUploaded?.name)
-
-
         let fileBlob = new Blob([fileUploaded as BlobPart]);
         const formData = new FormData();
         formData.append('file', fileBlob);
@@ -153,41 +131,35 @@ function Issuer() {
           })
           if(response.ok){
             const data = await response.json();
+            if (data.cid == "-1") {
+              console.log("hdfajfhadkjfhdakj", data.cid);
+              return;
+            }
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
-            const new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
-            setMethodArg(new_SCID);
-            handleUpdate();
-            //console.log("New SCID: ",new_SCID);
+            new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
+            console.log("setmethodarg = new_scid = ", new_SCID);
+            methodArg.current = new_SCID
+            //setMethodArg(new_SCID);
+            console.log("methodArg izegal to: ", methodArg);
+            // const timeOut = setTimeout(()=>{setMethodArg(new_SCID)} , 5000);
+            // clearTimeout(timeOut);
+            await callUpdateSCID();
             await deleteFromIPFS(globalState);
-            
           }
           else{
             console.log(response);
           }
-          
         } catch (error) {
-          
+          console.log("dundundun error:", error);
         }
-
-          
-
-
         } else {
           console.error('Failed to upload file');
         }
       } catch (error) {
         console.error('Error:', error);
       }
-
-      
-
-
-
-
-
     };
-
     function convertJsonToCsv(jsonData:any) {
         const header = Object.keys(jsonData[0]).join(',') + '\n';
         const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
