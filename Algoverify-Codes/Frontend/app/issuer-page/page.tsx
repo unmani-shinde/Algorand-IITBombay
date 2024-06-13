@@ -8,7 +8,7 @@ import pinFiletoIPFS from "./components/pinFiletoIFPS"
 import ExportCSV from "../verifier-page/components/verifyCSV"
 import deleteFromIPFS from "../components/deleteFromIPFS"
 import algosdk from 'algosdk';
-import * as abi from './artifacts/contract.json';
+import * as abi from '../contracts/artifacts/contract.json';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
 const appIndex = 678299449;
 // bg-gradient-to-b from-cyan-400 to-cyan-100 dark:bg-gradient-to-b dark:from-cyan-900 dark:to-cyan-500 
@@ -16,13 +16,14 @@ const appIndex = 678299449;
 function Issuer() {
     const [fileUploaded,setFile] = useState<File>()
     const [university,setUniversity] = useState<string>("")
-    const [SCID,setSCID] = useState<string>("")
     const [globalState, setGlobalState] = useState<any>(null);
-    //const [methodArg, setMethodArg] = useState<string>('');
     const methodArg = useRef('')
     const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
     let new_SCID = ""
-
+    const [modalMessage, setModalMessage] = useState<string>('');
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [fadeIn, setFadeIn] = useState<boolean>(false);
+    const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
     useEffect(() => {
       const initialize = async () => {
@@ -81,20 +82,34 @@ function Issuer() {
   
       await atc.execute(algodClient, 3);
       console.log('\nSCID updated!\n',);
-      handleRead();
-    };
-
-    const handleRead = async () => {
       await readGlobalState();
     };
+
+    /////////////////////////////   smart contract stuff^   /////////////////////////////
+    //// initialise useeffect -> loads account, checks balance, loads latest SCID value
+    ////
+    //// use readGlobalState() to fetch SCID value from the smart contract -> SCID value will be updated in globalState
+    //// 
+    //// to update value: methodArg.current = <new SCID val> and then
+    //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
+    ////
+
+    useEffect(() => {
+      if (showModal) {
+        setTimeout(() => setFadeIn(true), 0);
+      } else {
+        setFadeIn(false);
+      }
+    }, [showModal]);
 
     const handleFileChange = (event:any) => {
         setFile(event.target.files[0]);
       };
       //const new_CID = globalState
       useEffect(() => {
-        handleRead();
-        setSCID(globalState);
+        (async () => {
+          await readGlobalState();
+        })
       }, []);
     
       const handleClick = async () => {
@@ -103,70 +118,72 @@ function Issuer() {
         const formData = new FormData();
         formData.append('file', fileBlob);
 
-      try {
-        const response = await fetch('http://127.0.0.1:5000/issuer-page', {
-          method: 'POST',
-          body: formData,
-          
-        });
-
-        if (response.ok) {
-          console.log(globalState,typeof(globalState));
-          
-          const data = await response.json();
-          const csvString = convertJsonToCsv(data);
-          const blob = new Blob([csvString], { type: 'text/csv' });
-          const university_hash = await pinFiletoIPFS(blob,university)
-          let scidCSV = await ExportCSV(globalState)
-          fileBlob = new Blob([scidCSV as BlobPart]);
-
-        const requestFormData = new FormData()
-        requestFormData.append('scid_database',fileBlob)
-
         try {
-          const response = await fetch(`http://127.0.0.1:5000/dun-dun-dun?university=${university}&ucid=${university_hash}`,{
+          const response = await fetch('http://127.0.0.1:5000/issuer-page', {
             method: 'POST',
-            body: requestFormData,
+            body: formData,
             
-          })
-          if(response.ok){
+          });
+
+          if (response.ok) {
+            console.log(globalState,typeof(globalState));
+            
             const data = await response.json();
-            if (data.cid == "-1") {
-              console.log("hdfajfhadkjfhdakj", data.cid);
-              return;
-            }
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
-            new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
-            console.log("setmethodarg = new_scid = ", new_SCID);
-            methodArg.current = new_SCID
-            //setMethodArg(new_SCID);
-            console.log("methodArg izegal to: ", methodArg);
-            // const timeOut = setTimeout(()=>{setMethodArg(new_SCID)} , 5000);
-            // clearTimeout(timeOut);
-            await callUpdateSCID();
-            await deleteFromIPFS(globalState);
-          }
-          else{
-            console.log(response);
+            const university_hash = await pinFiletoIPFS(blob,university)
+            let scidCSV = await ExportCSV(globalState)
+            fileBlob = new Blob([scidCSV as BlobPart]);
+
+            const requestFormData = new FormData()
+            requestFormData.append('scid_database',fileBlob)
+
+            try {
+              const response = await fetch(`http://127.0.0.1:5000/dun-dun-dun?university=${university}&ucid=${university_hash}`,{
+                method: 'POST',
+                body: requestFormData,
+                
+              })
+              if(response.ok){
+                const data = await response.json();
+                if (data.cid == "-1") {
+                  console.log("hdfajfhadkjfhdakj", data.cid);
+                  return;
+                }
+                const csvString = convertJsonToCsv(data);
+                const blob = new Blob([csvString], { type: 'text/csv' });
+                new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
+                console.log("setmethodarg = new_scid = ", new_SCID);
+                methodArg.current = new_SCID
+                //setMethodArg(new_SCID);
+                console.log("methodArg izegal to: ", methodArg);
+                // const timeOut = setTimeout(()=>{setMethodArg(new_SCID)} , 5000);
+                // clearTimeout(timeOut);
+                await callUpdateSCID();
+                await deleteFromIPFS(globalState);
+                setIsSuccess(true);
+                setModalMessage(`University data has been uploaded successfully.`);
+                setShowModal(true);
+              }
+              else{
+                console.log(response);
+              }
+            } catch (error) {
+              console.log("dundundun error:", error);
+            }
+          } else {
+            console.error('Failed to upload file');
           }
         } catch (error) {
-          console.log("dundundun error:", error);
+          console.error('Error:', error);
         }
-        } else {
-          console.error('Failed to upload file');
-        }
-      } catch (error) {
-        console.error('Error:', error);
+      };
+      function convertJsonToCsv(jsonData:any) {
+          const header = Object.keys(jsonData[0]).join(',') + '\n';
+          const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
+          return header + rows;
       }
-    };
-    function convertJsonToCsv(jsonData:any) {
-        const header = Object.keys(jsonData[0]).join(',') + '\n';
-        const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
-        return header + rows;
-    }
-    
-    
+
     return(
         <section style={{marginBottom:'-3vh'}} className="w-full flex items-center flex-col flex-grow pt-10 ">
     <div className="items-center py-8 px-4 mx-auto w-full text-center lg:py-16 lg:px-12">
@@ -194,6 +211,28 @@ function Issuer() {
               >
                Let's Get Started!
               </a>
+
+          {showModal && (
+            <div className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="fixed inset-0 bg-black opacity-50"></div>
+              <div className="relative p-4 w-full max-w-5xl max-h-full">
+                <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                  <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onClick={() => setShowModal(false)}>
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                  <div className="p-4 md:p-5 text-center">
+                    <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">{modalMessage}</h3>
+                    <button onClick={() => setShowModal(false)} type="button" className={`text-white ${isSuccess ? 'bg-green-600 hover:bg-green-800 focus:ring-green-300 dark:focus:ring-green-800' : 'bg-red-600 hover:bg-red-800 focus:ring-red-300 dark:focus:ring-red-800'} font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center`}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <p

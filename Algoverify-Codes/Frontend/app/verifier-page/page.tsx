@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
+import algosdk from 'algosdk';
+import * as abi from '../contracts/artifacts/contract.json';
+const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
+const appIndex = 678299449;
 
 interface FormData {
   student_name: string;
@@ -18,6 +22,51 @@ const VerifierPage: React.FC = () => {
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [SCID,setSCID] = useState<String>("")
+  const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
+  const methodArg = useRef('')
+
+  useEffect(() => {
+    const initialize = async () => {
+      const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC as string;
+      const addr = process.env.NEXT_PUBLIC_ALGO_ADDR as string;
+      const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
+      setAccount({
+        addr: addr,
+        sk: recoveredAccount.sk
+      });
+      const accountInfo = await algodClient.accountInformation(addr).do();
+      console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
+      await readGlobalState();
+    };
+    initialize();
+  }, []);
+
+  const readGlobalState = async () => {
+    const appInfo = await algodClient.getApplicationByID(appIndex).do();
+    const globalState = appInfo.params['global-state'];
+    const scidState = globalState.find(
+      (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
+        const key = Buffer.from(item.key, 'base64').toString('utf8');
+        return key === 'SCID';
+      }
+    );
+    let value: String | null = null;
+    if (scidState && scidState.value.type === 1) {
+      value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
+    }
+    if (value) setSCID(value);
+    else setSCID("");
+    console.log('SCID Value:', value);
+  };
+
+  /////////////////////////////   smart contract stuff^   /////////////////////////////
+  //// initialise useeffect -> loads account, checks balance, loads latest SCID value
+  ////
+  //// use readGlobalState() to fetch SCID value from the smart contract -> SCID value will be updated in globalState
+  //// 
+  //// to update value: methodArg.current = <new SCID val> and then
+  //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
+  ////
 
   useEffect(() => {
     if (showModal) {
@@ -28,8 +77,9 @@ const VerifierPage: React.FC = () => {
   }, [showModal]);
 
   useEffect(() => {
-    setSCID("Qmb6VRZ8xyUgVTYSyNukMgEMVZEZTHCCFewTq5MqfcgRn6")
-    
+    (async () => {
+      await readGlobalState();
+    })
   }, []);
   
   const fetchUniversityCID = async() =>{
@@ -61,8 +111,6 @@ const VerifierPage: React.FC = () => {
     
     try {
       const CID = await fetchUniversityCID(); // This can be dynamic as needed
-  
-           
 
       // Create a Blob object from the formatted CSV string
       const blob = await ExportCSV(CID)
