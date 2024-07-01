@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS from flask_cors module
+from flask_cors import CORS
 from urllib.parse import unquote
 import pandas as pd
 from create_spdf.create_database import main
 from verify_record.verify_record import verify
+from update_spdf.update_db import process_csv, create_semi_private_database
 
 app = Flask(__name__)
 CORS(app)
@@ -94,6 +95,30 @@ def upload_file():
         return json_response, 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/update-page', methods=['POST'])
+def update_file():
+    newfile = request.files.get('newCSV')
+    if newfile.filename == '':
+        return jsonify({'error': 'No new file selected'}), 400
+    
+    oldfile = request.files.get('oldCSV')
+    if oldfile.filename == '':
+        return jsonify({'error': 'No old file selected'}), 400
+
+    # Read the already processed old file
+    old_spdb = pd.read_csv(oldfile)
+
+    # Process new file
+    new_df = process_csv(newfile)
+    new_spdb = create_semi_private_database(new_df, start_index=len(old_spdb))
+
+    # Combine old and new semi-private databases
+    combined_spdb = pd.concat([old_spdb, new_spdb])
+    json_response = combined_spdb.to_json(orient='records')
+
+    # Return the combined CSV file
+    return json_response, 200
 
 if __name__ == '__main__':
     app.run(debug=True)

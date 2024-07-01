@@ -155,10 +155,7 @@ function Issuer() {
                 new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
                 console.log("setmethodarg = new_scid = ", new_SCID);
                 methodArg.current = new_SCID
-                //setMethodArg(new_SCID);
                 console.log("methodArg izegal to: ", methodArg);
-                // const timeOut = setTimeout(()=>{setMethodArg(new_SCID)} , 5000);
-                // clearTimeout(timeOut);
                 await callUpdateSCID();
                 await deleteFromIPFS(globalState);
                 setIsSuccess(true);
@@ -188,7 +185,7 @@ function Issuer() {
         <section style={{marginBottom:'-3vh'}} className="w-full flex items-center flex-col flex-grow pt-10 ">
     <div className="items-center py-8 px-4 mx-auto w-full text-center lg:py-16 lg:px-12">
 
-    <div className="flex flex-col mb-4 block items-center w-full ">
+    <div className="flex flex-col mb-4 items-center w-full ">
           <Label className='text-white font-semibold' htmlFor="university" value="Enter the name of your University: " />
           <TextInput onChange={(e)=>{setUniversity(e.target.value)}} className="w-7/12" id="university" type="university" placeholder="XYZ University" required shadow />
         

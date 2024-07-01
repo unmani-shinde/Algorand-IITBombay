@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
 import algosdk from 'algosdk';
-import * as abi from '../contracts/artifacts/contract.json';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
 const appIndex = 678299449;
 
@@ -23,7 +22,6 @@ const VerifierPage: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [SCID,setSCID] = useState<String>("")
   const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
-  const methodArg = useRef('')
 
   useEffect(() => {
     const initialize = async () => {
@@ -75,12 +73,6 @@ const VerifierPage: React.FC = () => {
       setFadeIn(false);
     }
   }, [showModal]);
-
-  useEffect(() => {
-    (async () => {
-      await readGlobalState();
-    })
-  }, []);
   
   const fetchUniversityCID = async() =>{
     const blob = await ExportCSV(SCID);

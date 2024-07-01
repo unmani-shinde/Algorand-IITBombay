@@ -31,8 +31,9 @@ export default function Hero() {
             </p>
             {/* Animated Counter */}
             <div className="text-2xl font-bold text-purple-600 mb-16" data-aos="fade-right" data-aos-delay="200">
-              No. of verifiable certificates <br />
+              No. of verifiable certificates<br />
               <CountUp className='text-4xl' end={3100000} duration={3} separator="," />
+              {/* TODO: replace with actual value for number of UCIDs from pinata and change to number of universities that trust us*/}
             </div>
             {/* Buttons for Universities and Employers */}
             <div data-aos="fade-right" data-aos-delay="300">
