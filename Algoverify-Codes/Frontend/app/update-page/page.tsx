@@ -162,7 +162,7 @@ export default function UpdatePage() {
             let scid = new Blob([scidCSV as BlobPart]);
             const requestFormData = new FormData()
             requestFormData.append('ucid-map',scid)
-            const resp = await fetch(`http://127.0.0.1:5000/update-ucid?university=${university}&ucid=${university_hash}`,{
+            const resp = await fetch(`http://127.0.0.1:5000/update-ucid?university=${university}&ucid=${new_UCID}`,{
               method: 'POST',
               body: requestFormData,
             })
