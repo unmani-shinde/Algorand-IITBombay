@@ -134,8 +134,8 @@ export default function UpdatePage() {
     const fetchCSV = async () => {
     
       try {
-        const CID = await fetchUniversityCID(); 
-        const oldCSV = await ExportCSV(CID) //old university data csv
+        const old_UCID = await fetchUniversityCID(); 
+        const oldCSV = await ExportCSV(old_UCID) //old university data csv
         let old = new Blob([oldCSV as BlobPart]);
         const formData = new FormData();
         formData.append('oldCSV', old);
@@ -153,12 +153,38 @@ export default function UpdatePage() {
             const data = await response.json();
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
-            let new_UCID = await pinFiletoIPFS(blob,`${university}.csv`)
+            let new_UCID = await pinFiletoIPFS(blob,`${university}.csv`);
             ////////////    TODO    ///////////////
             //delete old university table
+            deleteFromIPFS(old_UCID);
             //update UCID value in UCID_Map.csv
-            //delete old UCID_Map table
-            //update SCID value on blockchain
+            let scidCSV = await ExportCSV(globalState)
+            let scid = new Blob([scidCSV as BlobPart]);
+            const requestFormData = new FormData()
+            requestFormData.append('ucid-map',scid)
+            const resp = await fetch(`http://127.0.0.1:5000/update-ucid?university=${university}&ucid=${university_hash}`,{
+              method: 'POST',
+              body: requestFormData,
+            })
+            if (resp.ok) {
+              const data = await resp.json();
+              const csv = convertJsonToCsv(data);
+              const blob = new Blob([csv], { type: 'text/csv' });
+              let oldSCID = globalState;
+              new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
+              //delete old UCID_Map table
+              await deleteFromIPFS(oldSCID);
+              console.log("setmethodarg = new_scid = ", new_SCID);
+              methodArg.current = new_SCID
+              console.log("methodArg izegal to: ", methodArg);
+              //update SCID value on blockchain
+              await callUpdateSCID();
+              setIsSuccess(true);
+              setModalMessage(`University data has been updated successfully.`);
+              setShowModal(true);
+            }
+            
+
             //test all this
           }
 

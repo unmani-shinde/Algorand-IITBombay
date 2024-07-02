@@ -132,9 +132,9 @@ function Issuer() {
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
             const university_hash = await pinFiletoIPFS(blob,university)
+
             let scidCSV = await ExportCSV(globalState)
             fileBlob = new Blob([scidCSV as BlobPart]);
-
             const requestFormData = new FormData()
             requestFormData.append('scid_database',fileBlob)
 
@@ -152,12 +152,13 @@ function Issuer() {
                 }
                 const csvString = convertJsonToCsv(data);
                 const blob = new Blob([csvString], { type: 'text/csv' });
+                let oldSCID = globalState;
                 new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
                 console.log("setmethodarg = new_scid = ", new_SCID);
                 methodArg.current = new_SCID
                 console.log("methodArg izegal to: ", methodArg);
                 await callUpdateSCID();
-                await deleteFromIPFS(globalState);
+                await deleteFromIPFS(oldSCID);
                 setIsSuccess(true);
                 setModalMessage(`University data has been uploaded successfully.`);
                 setShowModal(true);

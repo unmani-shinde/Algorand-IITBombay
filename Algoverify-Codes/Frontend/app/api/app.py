@@ -120,5 +120,28 @@ def update_file():
     # Return the combined CSV file
     return json_response, 200
 
+@app.route('/update-ucid', methods=['POST'])
+def update_ucid():
+    ucid_map = request.files.get('ucid-map')
+    if ucid_map.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    sciddf = pd.read_csv(ucid_map)
+    university = request.args.get('university', '').strip()
+    newucid = request.args.get('ucid', '').strip()
+
+    if not university or not newucid:
+        return jsonify({'error': 'Missing university or new UCID parameter'}), 400
+
+    if university not in sciddf['Name of University'].values:
+        return jsonify({'error': 'University not found'}), 404
+
+    sciddf.loc[sciddf['Name of University'] == university, 'University Content Identifier (UCID)'] = newucid
+
+    json_response = sciddf.to_json(orient='records')
+
+    return json_response, 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,16 +1,6 @@
 import pandas as pd
 import hashlib
-
-######
-## TODO
-# fetch UCID from pinata
-# fetch csv of university data from pinata
-# determine last row index
-# clean rows that need to be added
-# make sure graduation date is recent
-# add data to university db
-# update UCID
-# update SCID
+import datetime
 
 class MerkleTree:
 
@@ -100,6 +90,7 @@ def create_semi_private_database(df, start_index=0):
             mini_dict[headers[i]] = details[i]
         
         mini_dict["SuperRootIdentifier"] = merkle_tree.get_root()
+        mini_dict["Timestamp Added"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         semi_private_database[index] = mini_dict
         index += 1
 

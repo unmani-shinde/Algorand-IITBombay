@@ -1,6 +1,6 @@
 import pandas as pd
 import hashlib
-
+import datetime
 
 class MerkleTree:
 
@@ -90,6 +90,7 @@ def main(student_database_file):
             mini_dict[headers[i]] = details[i]
 
         mini_dict["SuperRootIdentifier"] = merkle_tree.get_root()
+        mini_dict["Timestamp Added"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         semi_private_database[index] = mini_dict
         index +=1
 
