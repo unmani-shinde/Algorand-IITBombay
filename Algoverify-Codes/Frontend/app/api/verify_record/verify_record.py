@@ -12,6 +12,7 @@ def hash_fxn(left, right):
 def verify(db,student_name,student_SID,student_grad_year):
 
     is_record_verified = True
+    timestamp = None
     spdb_df = pd.read_csv(db)
 
     # student_name = str(input("Enter the full name of the student in the format FirstName MiddleName LastName: "))
@@ -21,6 +22,7 @@ def verify(db,student_name,student_SID,student_grad_year):
     spdb_df["SID"] = spdb_df["SID"].astype(str).str.strip()
 
     if student_SID not in spdb_df["SID"].values:
+        print("student_sid not found")
         is_record_verified = False
 
     else:
@@ -28,15 +30,17 @@ def verify(db,student_name,student_SID,student_grad_year):
         student_row = spdb_df.loc[spdb_df["SID"] == student_SID]
         student_row=student_row.to_numpy()
         personal_hash = student_row[0][1]
+        timestamp = student_row[0][-1]
         
         # print(hash_fxn(basic_hash(student_SID),basic_hash(student_name)))
         # print(personal_hash)
 
         if(hash_fxn(basic_hash(student_SID),basic_hash(student_name))==personal_hash):
-            
             tree = student_row[0]
-            super_root= tree[-1]
-            tree = tree[1:-1]
+            tree = list(tree)
+            super_root= tree[-2]
+            print("super root izegal to " + super_root)
+            tree = tree[1:-2]
             if(len(tree)%2!=0):
                 tree.append(tree[-1])
 
@@ -53,13 +57,14 @@ def verify(db,student_name,student_SID,student_grad_year):
                 is_record_verified = True
                 
             else:
+                print("superroot doesnt match")
                 is_record_verified = False
                 
         else:
             is_record_verified = False
 
-    print(is_record_verified)
-    return is_record_verified        
+    print(is_record_verified, timestamp)
+    return is_record_verified, timestamp
 
 
 

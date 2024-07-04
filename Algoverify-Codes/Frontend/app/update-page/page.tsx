@@ -153,8 +153,7 @@ export default function UpdatePage() {
             const data = await response.json();
             const csvString = convertJsonToCsv(data);
             const blob = new Blob([csvString], { type: 'text/csv' });
-            let new_UCID = await pinFiletoIPFS(blob,`${university}.csv`);
-            ////////////    TODO    ///////////////
+            let new_UCID = await pinFiletoIPFS(blob,`${university}`);
             //delete old university table
             deleteFromIPFS(old_UCID);
             //update UCID value in UCID_Map.csv
@@ -185,7 +184,7 @@ export default function UpdatePage() {
             }
             
 
-            //test all this
+            //TODO: test all this
           }
 
         } catch (e) {
@@ -215,8 +214,7 @@ export default function UpdatePage() {
         <a
                 
                 style={{border:'none',cursor:'pointer'}}
-                onClick={()=>{console.log("Hello");
-                }}
+                onClick={handleClick}
                 className="mt-4 btn bg-indigo-700 rounded-md  text-sm font-semibold text-white shadow-sm hover:bg-indigo-300 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                Update Records!
@@ -247,7 +245,7 @@ export default function UpdatePage() {
               <p
                 
                 style={{border:'none',cursor:'pointer'}}
-                onClick={()=>{handleClick}}
+                onClick={()=>{console.log('hello');}}
                 className="mt-5 text-sm font-semibold text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                Don't have an existing university record? <a style={{textDecoration:'underline'}}className="font-medium hover:text-indigo-500" href="/issuer-page">Create one now</a> ↗

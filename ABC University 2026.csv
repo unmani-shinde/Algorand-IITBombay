@@ -1,0 +1,6 @@
+SID,First Name,Middle Name,Last Name,DOB,Contact Email,Contact Phone Number,University,Graduation Year,Degree Awarded,Program of Study (Major),Program of Study (Minor),Credits Completed,GPA
+210006,Alex,Blake,Smith,2002-04-15,alex.smith@email.com,555-234-5678,ABC University,2026,Bachelor of Science,Biology,Environmental Science,130.0,3.6
+210007,Jordan,Lee,Brown,2001-06-20,jordan.brown@email.com,555-345-6789,ABC University,2026,Bachelor of Arts,Political Science,Economics,120.0,3.4
+210008,Taylor,Drew,Johnson,2003-09-30,taylor.johnson@email.com,555-456-7890,ABC University,2026,Bachelor of Science,Chemistry,None,125.0,3.8
+210009,Morgan,Shay,Lee,2002-11-12,morgan.lee@email.com,555-567-8901,ABC University,2026,Bachelor of Business Administration,Finance,Accounting,140.0,3.5
+210010,Riley,Casey,Taylor,2003-02-22,riley.taylor@email.com,555-678-9012,ABC University,2026,Bachelor of Science,Physics,Mathematics,135.0,3.7

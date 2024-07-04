@@ -124,12 +124,12 @@ const VerifierPage: React.FC = () => {
         throw new Error('Verification failed');
       }
 
-      const textResponse = await verificationResponse.text();
-      console.log('Verification response:', textResponse);
+      const jsonResponse = await verificationResponse.json();
+      console.log('Verification response:', jsonResponse);
 
-      if (textResponse === "True") {
+      if (jsonResponse.verified) {
         setIsSuccess(true);
-        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.`);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${jsonResponse.timestamp}`);
       } else {
         setIsSuccess(false);
         setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified.`);

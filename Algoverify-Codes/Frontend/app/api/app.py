@@ -5,6 +5,7 @@ import pandas as pd
 from create_spdf.create_database import main
 from verify_record.verify_record import verify
 from update_spdf.update_db import process_csv, create_semi_private_database
+import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -74,12 +75,17 @@ def get_verified():
         return jsonify({'error': 'Missing required parameters'}), 400
 
     try:
-        # Assuming verify is a function defined elsewhere
-        record_verification = verify(database, student_name, student_sid, student_grad_year)
-        return str(record_verification)
-        # # Process record_verification further if needed
-        # return jsonify({'result': 'Record verification successful'}), 200
+
+        verification_result, timestamp = verify(database, student_name, student_sid, student_grad_year)
+        
+        return jsonify({
+            'verified': verification_result,
+            'timestamp': timestamp if verification_result else None
+        })
+    
     except Exception as e:
+        print(f"Error processing file: {str(e)}")
+        print(traceback.format_exc())  # This will print the full traceback
         return jsonify({'error': str(e)}), 500
 
 
@@ -94,7 +100,7 @@ def upload_file():
         json_response = database.to_json(orient='records')
         return json_response, 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 501
 
 @app.route('/update-page', methods=['POST'])
 def update_file():
@@ -133,10 +139,10 @@ def update_ucid():
     if not university or not newucid:
         return jsonify({'error': 'Missing university or new UCID parameter'}), 400
 
-    if university not in sciddf['Name of University'].values:
+    if university not in sciddf['Name of University:'].values:
         return jsonify({'error': 'University not found'}), 404
 
-    sciddf.loc[sciddf['Name of University'] == university, 'University Content Identifier (UCID)'] = newucid
+    sciddf.loc[sciddf['Name of University:'] == university, 'University Content Identifier (UCID):'] = newucid
 
     json_response = sciddf.to_json(orient='records')
 
