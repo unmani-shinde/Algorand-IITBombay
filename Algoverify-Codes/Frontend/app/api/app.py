@@ -148,6 +148,16 @@ def update_ucid():
 
     return json_response, 200
 
+@app.route('/updateTransactions', methods=['POST'])
+def update_transactions():
+    ucid = request.args.get('ucid', '').strip()
+    graduation_year = request.args.get('gradYear', '').strip()
+    TxID = request.args.get('txid', '').strip()
+    tcid = request.args.get('tcid', '').strip()
+    #retrieve table from tcid
+    #add values to table
+    #return new file 
+
 
 if __name__ == '__main__':
     app.run(debug=True)

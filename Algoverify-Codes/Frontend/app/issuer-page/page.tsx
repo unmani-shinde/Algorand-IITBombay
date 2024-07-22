@@ -9,9 +9,13 @@ import ExportCSV from "../verifier-page/components/verifyCSV"
 import deleteFromIPFS from "../components/deleteFromIPFS"
 import algosdk from 'algosdk';
 import * as abi from '../contracts/artifacts/contract.json';
+import Papa from 'papaparse';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
-const appIndex = 678299449;
-// bg-gradient-to-b from-cyan-400 to-cyan-100 dark:bg-gradient-to-b dark:from-cyan-900 dark:to-cyan-500 
+const appIndex = Number(process.env.ALGO_APP_ID);
+//TODO update App Index everywhere else
+// bg-gradient-to-b from-cyan-400 to-cyan-100 dark:bg-gradient-to-b dark:from-cyan-900 dark:to-cyan-500
+const fs = require('fs').promises;
+const path = require('path');
 
 function Issuer() {
     const [fileUploaded,setFile] = useState<File>()
@@ -24,6 +28,9 @@ function Issuer() {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [fadeIn, setFadeIn] = useState<boolean>(false);
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [txID, setTxId] = useState<String>('');
+    const [gradYears, setGradYears] = useState<string[]>([]);
+    const [UCID, setUCID] = useState<string>("");
 
     useEffect(() => {
       const initialize = async () => {
@@ -80,9 +87,109 @@ function Issuer() {
         signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
       });
   
-      await atc.execute(algodClient, 3);
-      console.log('\nSCID updated!\n',);
-      await readGlobalState();
+      try {
+        const result = await atc.execute(algodClient, 3);
+        console.log('\nSCID updated!\n');
+  
+        // Log transaction IDs
+        const transactionID = result.txIDs[0];
+        console.log(`Transaction ID: ${transactionID}`);
+        setTxId(transactionID);
+        await updateTransactions();
+  
+        await readGlobalState();
+      } catch (error) {
+        console.error('Failed to update SCID:', error);
+      }
+    };
+
+    // Read the TCID from chain
+    const readTCID = async () => {
+      try {
+          const appInfo = await algodClient.getApplicationByID(appIndex).do();
+          const globalState = appInfo.params['global-state'];
+          const tcidState = globalState.find(
+              (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
+                  const key = Buffer.from(item.key, 'base64').toString('utf8');
+                  return key === 'TCID';
+              }
+          );
+          if (tcidState && tcidState.value.type === 1) {
+              const value = Buffer.from(tcidState.value.bytes, 'base64').toString('utf8');
+              console.log('TCID Value:', value);
+              return value;
+          }
+      } catch (error) {
+          console.error('Failed to read TCID:', error);
+      }
+      return null;
+  };
+  
+
+    // Write the TCID to algorand
+    const writeTCID = async (tcid: string) => {
+      if (!account) return;
+      
+      const suggestedParams = await algodClient.getTransactionParams().do();
+      const atc = new algosdk.AtomicTransactionComposer();
+  
+      const contract = new algosdk.ABIContract(abi);
+      const updateMethod = algosdk.getMethodByName(contract.methods, 'update_TCID');
+  
+      atc.addMethodCall({
+        appID: appIndex,
+        method: updateMethod,
+        methodArgs: [tcid], // Use the state value as the method argument
+        sender: account.addr,
+        suggestedParams,
+        signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
+      });
+  
+      try {
+        const result = await atc.execute(algodClient, 3);
+        console.log('\nTCID updated!\n');
+  
+        // Log transaction IDs
+        const transactionID = result.txIDs[0];
+        console.log(`Transaction ID: ${transactionID}`);
+        //setTxId(transactionID);
+        //await updateTransactions();
+  
+        //await readGlobalState();
+      } catch (error) {
+        console.error('Failed to update TCID:', error);
+      }
+    }
+
+    const updateTransactions = async () => {
+      //TODO:
+      //TCID value needs to be read from ./TCID.txt
+      const oldTCID = await readTCID();
+      if (!oldTCID) {
+        console.log("readTCID error");
+        return;
+      }
+      console.log(`oldTCID = ${oldTCID}`);
+      //use ExportCSV to fetch Transactions.csv from TCID
+      const transactionsBlob = await ExportCSV(oldTCID);
+      //add UCID, Graduation Year, TxID to TCID table
+      let csvText = "";
+      if (transactionsBlob) {
+        csvText = await transactionsBlob.text();
+      }
+      let updatedCsvText = csvText.trim();
+      gradYears.forEach( async (element: any) => {
+        updatedCsvText += `\n${UCID},${element},${txID}`;
+      });
+      
+      const newTransactionsBlob = new Blob([updatedCsvText], { type: 'text/csv' });
+      //delete oldTCID from ipfs
+      await deleteFromIPFS(oldTCID);
+      //pin new transactions.csv
+      const newTCID = await pinFiletoIPFS(newTransactionsBlob, "Transactions.csv");
+      //store new TCID value in TCID.txt
+      await writeTCID(newTCID);
+      console.log("TCID updated.");
     };
 
     /////////////////////////////   smart contract stuff^   /////////////////////////////
@@ -93,6 +200,7 @@ function Issuer() {
     //// to update value: methodArg.current = <new SCID val> and then
     //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
     ////
+    //// TODO: once txid and TCID retrieved, add row(UCID, Grad Year, TxID) to TCID table.
 
     useEffect(() => {
       if (showModal) {
@@ -102,85 +210,108 @@ function Issuer() {
       }
     }, [showModal]);
 
+    const parseCSV = (file: File) => {
+      Papa.parse(file, {
+        header: true,
+        complete: (results: { data: any }) => {
+          const rows = results.data;
+          const uniqueYears = new Set<string>(); // Use a Set to store unique years
+  
+          // Iterate over each row and add the graduation year to the set
+          rows.forEach((row: { [x: string]: string }) => {
+            if (row['Graduation Year']) {
+              uniqueYears.add(row['Graduation Year'].trim()); // Trim to remove any extraneous whitespace
+            }
+          });
+  
+          // Convert Set to Array and update state
+          setGradYears(Array.from(uniqueYears));
+        }
+      });
+    };
+
     const handleFileChange = (event:any) => {
         setFile(event.target.files[0]);
+        parseCSV(event.target.files[0]);
       };
-      //const new_CID = globalState
-      useEffect(() => {
-        (async () => {
-          await readGlobalState();
-        })
-      }, []);
+
+    //const new_CID = globalState
+    useEffect(() => {
+      (async () => {
+        await readGlobalState();
+      })
+    }, []);
     
-      const handleClick = async () => {
-        console.log("File Name: ",fileUploaded?.name)
-        let fileBlob = new Blob([fileUploaded as BlobPart]);
-        const formData = new FormData();
-        formData.append('file', fileBlob);
+    const handleClick = async () => {
+      console.log("File Name: ",fileUploaded?.name)
+      let fileBlob = new Blob([fileUploaded as BlobPart]);
+      const formData = new FormData();
+      formData.append('file', fileBlob);
 
-        try {
-          const response = await fetch('http://127.0.0.1:5000/issuer-page', {
-            method: 'POST',
-            body: formData,
-            
-          });
+      try {
+        const response = await fetch('http://127.0.0.1:5000/issuer-page', {
+          method: 'POST',
+          body: formData,
+          
+        });
 
-          if (response.ok) {
-            console.log(globalState,typeof(globalState));
-            
-            const data = await response.json();
-            const csvString = convertJsonToCsv(data);
-            const blob = new Blob([csvString], { type: 'text/csv' });
-            const university_hash = await pinFiletoIPFS(blob,university)
+        if (response.ok) {
+          console.log(globalState,typeof(globalState));
+          
+          const data = await response.json();
+          const csvString = convertJsonToCsv(data);
+          const blob = new Blob([csvString], { type: 'text/csv' });
+          const university_hash = await pinFiletoIPFS(blob,university)
+          setUCID(university_hash);
 
-            let scidCSV = await ExportCSV(globalState)
-            fileBlob = new Blob([scidCSV as BlobPart]);
-            const requestFormData = new FormData()
-            requestFormData.append('scid_database',fileBlob)
+          let scidCSV = await ExportCSV(globalState)
+          fileBlob = new Blob([scidCSV as BlobPart]);
+          const requestFormData = new FormData()
+          requestFormData.append('scid_database',fileBlob)
 
-            try {
-              const response = await fetch(`http://127.0.0.1:5000/dun-dun-dun?university=${university}&ucid=${university_hash}`,{
-                method: 'POST',
-                body: requestFormData,
-                
-              })
-              if(response.ok){
-                const data = await response.json();
-                if (data.cid == "-1") {
-                  console.log("hdfajfhadkjfhdakj", data.cid);
-                  return;
-                }
-                const csvString = convertJsonToCsv(data);
-                const blob = new Blob([csvString], { type: 'text/csv' });
-                let oldSCID = globalState;
-                new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
-                console.log("setmethodarg = new_scid = ", new_SCID);
-                methodArg.current = new_SCID
-                console.log("methodArg izegal to: ", methodArg);
-                await callUpdateSCID();
-                await deleteFromIPFS(oldSCID);
-                setIsSuccess(true);
-                setModalMessage(`University data has been uploaded successfully.`);
-                setShowModal(true);
+          try {
+            const response = await fetch(`http://127.0.0.1:5000/dun-dun-dun?university=${university}&ucid=${university_hash}`,{
+              method: 'POST',
+              body: requestFormData,
+              
+            })
+            if(response.ok){
+              const data = await response.json();
+              if (data.cid == "-1") {
+                console.log("hdfajfhadkjfhdakj", data.cid);
+                return;
               }
-              else{
-                console.log(response);
-              }
-            } catch (error) {
-              console.log("dundundun error:", error);
+              const csvString = convertJsonToCsv(data);
+              const blob = new Blob([csvString], { type: 'text/csv' });
+              let oldSCID = globalState;
+              new_SCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
+              console.log("setmethodarg = new_scid = ", new_SCID);
+              methodArg.current = new_SCID
+              console.log("methodArg izegal to: ", methodArg);
+              await callUpdateSCID();
+              await deleteFromIPFS(oldSCID);
+              setIsSuccess(true);
+              setModalMessage(`University data has been uploaded successfully.`);
+              setShowModal(true);
             }
-          } else {
-            console.error('Failed to upload file');
+            else{
+              console.log(response);
+            }
+          } catch (error) {
+            console.log("dundundun error:", error);
           }
-        } catch (error) {
-          console.error('Error:', error);
+        } else {
+          console.error('Failed to upload file');
         }
-      };
-      function convertJsonToCsv(jsonData:any) {
-          const header = Object.keys(jsonData[0]).join(',') + '\n';
-          const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
-          return header + rows;
+      } catch (error) {
+        console.error('Error:', error);
       }
+    };
+    function convertJsonToCsv(jsonData:any) {
+        const header = Object.keys(jsonData[0]).join(',') + '\n';
+        const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
+        return header + rows;
+    }
 
     return(
         <section style={{marginBottom:'-3vh'}} className="w-full flex items-center flex-col flex-grow pt-10 ">

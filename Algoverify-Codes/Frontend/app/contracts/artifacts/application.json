@@ -9,15 +9,25 @@
             "call_config": {
                 "no_op": "CALL"
             }
+        },
+        "update_TCID(string)void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        },
+        "read_tcid()string": {
+            "call_config": {
+                "no_op": "CALL"
+            }
         }
     },
     "source": {
-        "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQpieXRlY2Jsb2NrIDB4IDB4NTM0MzQ5NDQKdHhuIE51bUFwcEFyZ3MKaW50Y18wIC8vIDAKPT0KYm56IG1haW5fbDYKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg5N2YyMGNmMyAvLyAidXBkYXRlX1NDSUQoc3RyaW5nKXZvaWQiCj09CmJueiBtYWluX2w1CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4OGU2MjI0MjAgLy8gInJlYWRfY2lkcygpc3RyaW5nIgo9PQpibnogbWFpbl9sNAplcnIKbWFpbl9sNDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiByZWFkY2lkc2Nhc3Rlcl8zCmludGNfMSAvLyAxCnJldHVybgptYWluX2w1Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIHVwZGF0ZVNDSURjYXN0ZXJfMgppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQpibnogbWFpbl9sOAplcnIKbWFpbl9sODoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmludGNfMSAvLyAxCnJldHVybgoKLy8gdXBkYXRlX1NDSUQKdXBkYXRlU0NJRF8wOgpwcm90byAxIDAKYnl0ZWNfMSAvLyAiU0NJRCIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmFwcF9nbG9iYWxfcHV0CnJldHN1YgoKLy8gcmVhZF9jaWRzCnJlYWRjaWRzXzE6CnByb3RvIDAgMQpieXRlY18wIC8vICIiCmJ5dGVjXzEgLy8gIlNDSUQiCmFwcF9nbG9iYWxfZ2V0CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gdXBkYXRlX1NDSURfY2FzdGVyCnVwZGF0ZVNDSURjYXN0ZXJfMjoKcHJvdG8gMCAwCmJ5dGVjXzAgLy8gIiIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKY2FsbHN1YiB1cGRhdGVTQ0lEXzAKcmV0c3ViCgovLyByZWFkX2NpZHNfY2FzdGVyCnJlYWRjaWRzY2FzdGVyXzM6CnByb3RvIDAgMApieXRlY18wIC8vICIiCmNhbGxzdWIgcmVhZGNpZHNfMQpmcmFtZV9idXJ5IDAKcHVzaGJ5dGVzIDB4MTUxZjdjNzUgLy8gMHgxNTFmN2M3NQpmcmFtZV9kaWcgMApjb25jYXQKbG9nCnJldHN1Yg==",
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQpieXRlY2Jsb2NrIDB4IDB4NTM0MzQ5NDQgMHg1NDQzNDk0NCAweDE1MWY3Yzc1CnR4biBOdW1BcHBBcmdzCmludGNfMCAvLyAwCj09CmJueiBtYWluX2wxMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDk3ZjIwY2YzIC8vICJ1cGRhdGVfU0NJRChzdHJpbmcpdm9pZCIKPT0KYm56IG1haW5fbDkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg4ZTYyMjQyMCAvLyAicmVhZF9jaWRzKClzdHJpbmciCj09CmJueiBtYWluX2w4CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4N2U3NzFjNzUgLy8gInVwZGF0ZV9UQ0lEKHN0cmluZyl2b2lkIgo9PQpibnogbWFpbl9sNwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDA3Y2Q1ZTVkIC8vICJyZWFkX3RjaWQoKXN0cmluZyIKPT0KYm56IG1haW5fbDYKZXJyCm1haW5fbDY6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgcmVhZHRjaWRjYXN0ZXJfNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNzoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiB1cGRhdGVUQ0lEY2FzdGVyXzYKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgcmVhZGNpZHNjYXN0ZXJfNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiB1cGRhdGVTQ0lEY2FzdGVyXzQKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDEwOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2wxMgplcnIKbWFpbl9sMTI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIHVwZGF0ZV9TQ0lECnVwZGF0ZVNDSURfMDoKcHJvdG8gMSAwCmJ5dGVjXzEgLy8gIlNDSUQiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApyZXRzdWIKCi8vIHJlYWRfY2lkcwpyZWFkY2lkc18xOgpwcm90byAwIDEKYnl0ZWNfMCAvLyAiIgpieXRlY18xIC8vICJTQ0lEIgphcHBfZ2xvYmFsX2dldApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHVwZGF0ZV9UQ0lECnVwZGF0ZVRDSURfMjoKcHJvdG8gMSAwCmJ5dGVjXzIgLy8gIlRDSUQiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApyZXRzdWIKCi8vIHJlYWRfdGNpZApyZWFkdGNpZF8zOgpwcm90byAwIDEKYnl0ZWNfMCAvLyAiIgpieXRlY18yIC8vICJUQ0lEIgphcHBfZ2xvYmFsX2dldApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHVwZGF0ZV9TQ0lEX2Nhc3Rlcgp1cGRhdGVTQ0lEY2FzdGVyXzQ6CnByb3RvIDAgMApieXRlY18wIC8vICIiCnR4bmEgQXBwbGljYXRpb25BcmdzIDEKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmNhbGxzdWIgdXBkYXRlU0NJRF8wCnJldHN1YgoKLy8gcmVhZF9jaWRzX2Nhc3RlcgpyZWFkY2lkc2Nhc3Rlcl81Ogpwcm90byAwIDAKYnl0ZWNfMCAvLyAiIgpjYWxsc3ViIHJlYWRjaWRzXzEKZnJhbWVfYnVyeSAwCmJ5dGVjXzMgLy8gMHgxNTFmN2M3NQpmcmFtZV9kaWcgMApjb25jYXQKbG9nCnJldHN1YgoKLy8gdXBkYXRlX1RDSURfY2FzdGVyCnVwZGF0ZVRDSURjYXN0ZXJfNjoKcHJvdG8gMCAwCmJ5dGVjXzAgLy8gIiIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKY2FsbHN1YiB1cGRhdGVUQ0lEXzIKcmV0c3ViCgovLyByZWFkX3RjaWRfY2FzdGVyCnJlYWR0Y2lkY2FzdGVyXzc6CnByb3RvIDAgMApieXRlY18wIC8vICIiCmNhbGxzdWIgcmVhZHRjaWRfMwpmcmFtZV9idXJ5IDAKYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CmZyYW1lX2RpZyAwCmNvbmNhdApsb2cKcmV0c3Vi",
         "clear": "I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"
     },
     "state": {
         "global": {
-            "num_byte_slices": 1,
+            "num_byte_slices": 2,
             "num_uints": 0
         },
         "local": {
@@ -31,6 +41,11 @@
                 "SCID": {
                     "type": "bytes",
                     "key": "SCID",
+                    "descr": ""
+                },
+                "TCID": {
+                    "type": "bytes",
+                    "key": "TCID",
                     "descr": ""
                 }
             },
@@ -58,6 +73,25 @@
             },
             {
                 "name": "read_cids",
+                "args": [],
+                "returns": {
+                    "type": "string"
+                }
+            },
+            {
+                "name": "update_TCID",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "cid"
+                    }
+                ],
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "read_tcid",
                 "args": [],
                 "returns": {
                     "type": "string"

@@ -65,6 +65,7 @@ const VerifierPage: React.FC = () => {
   //// to update value: methodArg.current = <new SCID val> and then
   //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
   ////
+  //// TODO: retrieve TCID, retrieve TxID using UCID and Graduation Year from Transactions.csv on pinata, check timestamp of tx and verify it. 
 
   useEffect(() => {
     if (showModal) {

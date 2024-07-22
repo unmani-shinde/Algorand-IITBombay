@@ -1,0 +1,6 @@
+SID,First Name,Middle Name,Last Name,DOB,Contact Email,Contact Phone Number,University,Graduation Year,Degree Awarded,Program of Study (Major),Program of Study (Minor),Credits Completed,GPA
+310001,Sam,Jordan,Miller,2001-05-10,sam.miller@email.com,555-123-4567,SIUniversity,2019,Bachelor of Science,Computer Science,Mathematics,128.0,3.9
+310002,Jamie,Taylor,Garcia,2002-07-22,jamie.garcia@email.com,555-234-5678,SIUniversity,2019,Bachelor of Arts,History,Philosophy,122.0,3.7
+310003,Chris,Alexis,Martinez,2001-11-14,chris.martinez@email.com,555-345-6789,SIUniversity,2019,Bachelor of Science,Mechanical Engineering,None,130.0,3.8
+310004,Dakota,Pat,Anderson,2003-01-08,dakota.anderson@email.com,555-456-7890,SIUniversity,2019,Bachelor of Business Administration,Marketing,Management,140.0,3.6
+310005,Jesse,Reese,Clark,2002-03-29,jesse.clark@email.com,555-567-8901,SIUniversity,2019,Bachelor of Science,Electrical Engineering,None,135.0,3.7

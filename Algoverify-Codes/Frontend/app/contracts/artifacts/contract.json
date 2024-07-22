@@ -19,6 +19,25 @@
             "returns": {
                 "type": "string"
             }
+        },
+        {
+            "name": "update_TCID",
+            "args": [
+                {
+                    "type": "string",
+                    "name": "cid"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            }
+        },
+        {
+            "name": "read_tcid",
+            "args": [],
+            "returns": {
+                "type": "string"
+            }
         }
     ],
     "networks": {}

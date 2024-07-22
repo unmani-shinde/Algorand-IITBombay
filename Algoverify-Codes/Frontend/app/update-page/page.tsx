@@ -182,9 +182,6 @@ export default function UpdatePage() {
               setModalMessage(`University data has been updated successfully.`);
               setShowModal(true);
             }
-            
-
-            //TODO: test all this
           }
 
         } catch (e) {
