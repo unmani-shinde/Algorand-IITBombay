@@ -5,7 +5,7 @@ import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
 import algosdk from 'algosdk';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
-const appIndex = Number(process.env.ALGO_APP_ID);
+const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
 
 interface FormData {
   student_name: string;
@@ -57,6 +57,28 @@ const VerifierPage: React.FC = () => {
     console.log('SCID Value:', value);
   };
 
+  // Read the TCID from chain
+  const readTCID = async () => {
+    try {
+        const appInfo = await algodClient.getApplicationByID(appIndex).do();
+        const globalState = appInfo.params['global-state'];
+        const tcidState = globalState.find(
+            (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
+                const key = Buffer.from(item.key, 'base64').toString('utf8');
+                return key === 'TCID';
+            }
+        );
+        if (tcidState && tcidState.value.type === 1) {
+            const value = Buffer.from(tcidState.value.bytes, 'base64').toString('utf8');
+            console.log('TCID Value:', value);
+            return value;
+        }
+    } catch (error) {
+        console.error('Failed to read TCID:', error);
+    }
+    return null;
+  };
+
   /////////////////////////////   smart contract stuff^   /////////////////////////////
   //// initialise useeffect -> loads account, checks balance, loads latest SCID value
   ////
@@ -66,6 +88,7 @@ const VerifierPage: React.FC = () => {
   //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
   ////
   //// TODO: retrieve TCID, retrieve TxID using UCID and Graduation Year from Transactions.csv on pinata, check timestamp of tx and verify it. 
+  ////
 
   useEffect(() => {
     if (showModal) {
@@ -103,10 +126,10 @@ const VerifierPage: React.FC = () => {
   const fetchCSV = async () => {
     
     try {
-      const CID = await fetchUniversityCID(); // This can be dynamic as needed
+      const UCID = await fetchUniversityCID();
 
       // Create a Blob object from the formatted CSV string
-      const blob = await ExportCSV(CID)
+      const blob = await ExportCSV(UCID)
       let fileBlob = new Blob([blob as BlobPart]);
 
       // Create a FormData object and append the Blob to it
@@ -127,17 +150,64 @@ const VerifierPage: React.FC = () => {
 
       const jsonResponse = await verificationResponse.json();
       console.log('Verification response:', jsonResponse);
-
-      if (jsonResponse.verified) {
-        setIsSuccess(true);
-        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${jsonResponse.timestamp}`);
-      } else {
+      if (!jsonResponse.verified) {
         setIsSuccess(false);
         setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified.`);
+        setShowModal(true);
+        return;
+      }
+      //TODO: 
+      //retrieve TCID
+      const TCID = await readTCID();
+      if (!TCID) {
+        console.error("read_tcid error");
+        return;
+      }
+      //retrieve UCID and grad year of that particular student
+      const grad_year = formData_.student_grad_year;
+      //retrieve TxID using UCID and Graduation Year from Transactions.csv on pinata
+      const txBlob = await ExportCSV(TCID)
+      if (!txBlob) {
+        console.error("exportcsv txblob error");
+        return;
+      }
+      const csvText = await txBlob.text();
+      const lines = csvText.split('\n');
+      let txID;
+      for (let i = 1; i < lines.length; i++) {
+        const [csvUCID, csvGradYear, csvTxID] = lines[i].split(',');
+        
+        // Trim whitespace and compare
+        if (csvUCID.trim() === UCID.trim() && csvGradYear.trim() === grad_year.trim()) {
+          txID = csvTxID
+        }
       }
 
-      setShowModal(true);
+      if (!txID) {
+        console.error("Transaction ID not found");
+        return;
+      }
 
+      //CHATGPT IMPLEMENT THIS: check timestamp of txID, especially the year and verify if the tx year is within +-1 of the grad_year. 
+      const transaction = await algodClient.pendingTransactionInformation(txID).do();
+      const round = transaction['confirmed-round'];
+      if (!round) {
+        console.log('Transaction not confirmed yet');
+        return;
+      }
+      const block = await algodClient.block(round).do();
+      const timestamp = block.block.ts; // Timestamp in seconds since epoch
+      const txYear = new Date(timestamp * 1000).getFullYear();
+      const gradYearInt = parseInt(grad_year);
+
+      if (Math.abs(txYear - gradYearInt) <= 1) {
+        setIsSuccess(true);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
+      } else {
+        setIsSuccess(false);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified. However the data records might have been tampered with.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}, which is too recent for a student that graduated in ${grad_year}`);
+      }
+      setShowModal(true);
     } catch (error) {
       console.error('Failed to fetch CSV:', error);
       setIsSuccess(false);

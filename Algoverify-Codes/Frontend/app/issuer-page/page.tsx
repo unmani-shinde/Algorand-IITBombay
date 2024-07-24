@@ -129,7 +129,7 @@ function Issuer() {
           console.error('Failed to read TCID:', error);
       }
       return null;
-  };
+    };
   
 
     // Write the TCID to algorand
@@ -168,8 +168,6 @@ function Issuer() {
     }
 
     const updateTransactions = async () => {
-      //TODO:
-      //TCID value needs to be read from ./TCID.txt
       const oldTCID = await readTCID();
       if (!oldTCID) {
         console.log("readTCID error");
@@ -208,7 +206,8 @@ function Issuer() {
     //// to update value: methodArg.current = <new SCID val> and then
     //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
     ////
-    //// TODO: once txid and TCID retrieved, add row(UCID, Grad Year, TxID) to TCID table.
+    //// readTCID() to read TCID and writeTCID() to update TCID value on smart contract
+    ////
 
     useEffect(() => {
       if (showModal) {
