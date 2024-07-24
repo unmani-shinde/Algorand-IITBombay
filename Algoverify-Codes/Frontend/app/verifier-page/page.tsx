@@ -5,7 +5,7 @@ import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
 import algosdk from 'algosdk';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
-const appIndex = 678299449;
+const appIndex = Number(process.env.ALGO_APP_ID);
 
 interface FormData {
   student_name: string;

@@ -8,7 +8,7 @@ import deleteFromIPFS from "../components/deleteFromIPFS"
 import algosdk from 'algosdk';
 import * as abi from '../contracts/artifacts/contract.json';
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
-const appIndex = 678299449;
+const appIndex = Number(process.env.ALGO_APP_ID);
 export default function UpdatePage() {
     const [university,setUniversity] = useState<string>("")
     const [fileUploaded,setFile] = useState<File>()

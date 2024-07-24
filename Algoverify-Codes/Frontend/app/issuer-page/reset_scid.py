@@ -14,7 +14,7 @@ ALGOD_ADDRESS = "https://testnet-api.algonode.cloud"
 ALGOD_TOKEN = ""
 MNEMONIC = os.getenv("NEXT_PUBLIC_ALGO_MNEMONIC")
 SENDER_ADDRESS = os.getenv("NEXT_PUBLIC_ALGO_ADDR")
-APP_ID = os.getenv("ALGO_APP_ID")  # Replace with your actual app ID
+APP_ID = os.getenv("NEXT_PUBLIC_ALGO_APP_ID")  # Replace with your actual app ID
 #print("\n\n\n PRINTING MNEMONIC " + str(MNEMONIC) + "\n\n\n\n\n")
 
 # Initialize Algod client
@@ -56,7 +56,7 @@ def update_scid():
     result = atc.execute(algod_client, 3)
 
     # Print result
-    print(f"Transaction ID: {result.tx_ids[0]}")
+    #print(f"Transaction ID: {result.tx_ids[0]}")
     print("SCID updated successfully!")
 
 def update_tcid():
@@ -86,7 +86,7 @@ def update_tcid():
     result = atc.execute(algod_client, 3)
 
     # Print result
-    print(f"Transaction ID: {result.tx_ids[0]}")
+    #print(f"Transaction ID: {result.tx_ids[0]}")
     print("TCID updated successfully!")
 
 if __name__ == "__main__":

@@ -10,12 +10,12 @@ import deleteFromIPFS from "../components/deleteFromIPFS"
 import algosdk from 'algosdk';
 import * as abi from '../contracts/artifacts/contract.json';
 import Papa from 'papaparse';
-const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
-const appIndex = Number(process.env.ALGO_APP_ID);
-//TODO update App Index everywhere else
-// bg-gradient-to-b from-cyan-400 to-cyan-100 dark:bg-gradient-to-b dark:from-cyan-900 dark:to-cyan-500
 const fs = require('fs').promises;
 const path = require('path');
+
+// bg-gradient-to-b from-cyan-400 to-cyan-100 dark:bg-gradient-to-b dark:from-cyan-900 dark:to-cyan-500
+const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
+const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
 
 function Issuer() {
     const [fileUploaded,setFile] = useState<File>()
@@ -95,13 +95,19 @@ function Issuer() {
         const transactionID = result.txIDs[0];
         console.log(`Transaction ID: ${transactionID}`);
         setTxId(transactionID);
-        await updateTransactions();
+        //await updateTransactions();
   
         await readGlobalState();
       } catch (error) {
         console.error('Failed to update SCID:', error);
       }
     };
+
+    useEffect(() => {
+      if (UCID && txID) {
+        updateTransactions();
+      }
+    }, [UCID, txID]);
 
     // Read the TCID from chain
     const readTCID = async () => {
@@ -178,7 +184,9 @@ function Issuer() {
         csvText = await transactionsBlob.text();
       }
       let updatedCsvText = csvText.trim();
+      console.log(updatedCsvText);
       gradYears.forEach( async (element: any) => {
+        console.log(`UCID = ${UCID} and txID = ${txID}\n`)
         updatedCsvText += `\n${UCID},${element},${txID}`;
       });
       
