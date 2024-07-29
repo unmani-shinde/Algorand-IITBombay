@@ -91,4 +91,4 @@ def update_tcid():
 
 if __name__ == "__main__":
     update_scid()
-    update_tcid()
+    #update_tcid()

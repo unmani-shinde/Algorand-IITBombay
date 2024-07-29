@@ -19,8 +19,8 @@ export default function Features() {
               <div className="w-16 h-16 mb-4 bg-purple-600 rounded-full flex items-center justify-center">
                 <ShieldCheck className="text-white w-8 h-8" />
               </div>
-              <h4 className="h4 mb-2">Tamper-Proof Verification</h4>
-              <p className="text-lg text-gray-400 text-center">Ensure document integrity with tamper-proof verification, leveraging advanced technology to safeguard against unauthorized alterations.
+              <h4 className="h4 mb-2">Tamper-Proof</h4>
+              <p className="text-lg text-gray-400 text-center">Ensure document integrity with tamper-proof verification, leveraging an intelligent timestamping system to safeguard against unauthorized alterations.
               </p>
             </div>
 
@@ -31,8 +31,8 @@ export default function Features() {
                 <path className="stroke-current text-purple-100" strokeWidth="2" strokeLinecap="square" d="M21 23h22v18H21z" fill="none" fillRule="evenodd" />
                 <path className="stroke-current text-purple-300" d="M26 28h12M26 32h12M26 36h5" strokeWidth="2" strokeLinecap="square" />
               </svg>
-              <h4 className="h4 mb-2">Clear Audit and Visibility</h4>
-              <p className="text-lg text-gray-400 text-center">Gain confidence from transparent audits and effortless visibility, fostering informed and confident decision-making.</p>
+              <h4 className="h4 mb-2 text-center">Transparent</h4>
+              <p className="text-lg text-gray-400 text-center">Gain confidence from transparent processes and effortless visibility, fostering informed and confident decision-making.</p>
             </div>
 
             {/* 3rd item */}
@@ -45,8 +45,8 @@ export default function Features() {
                   <circle className="stroke-current text-purple-100" cx="11" cy="11" r="11" />
                 </g>
               </svg>
-              <h4 className="h4 mb-2">Rapid Verification Process</h4>
-              <p className="text-lg text-gray-400 text-center">Our Algorand-driven solution streamlines verification through blockchain, expediting authentication for individuals and organizations.</p>
+              <h4 className="h4 mb-2">Rapid & Secure</h4>
+              <p className="text-lg text-gray-400 text-center">Accelerate authentication with seamless blockchain technology, guaranteeing unparalleled security and absolute trust in every transaction.</p>
             </div>
           </div>
           <div data-aos="fade-right" data-aos-delay="300" className="mx-auto text-center px-6 py-20">

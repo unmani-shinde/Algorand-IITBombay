@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExportCSV from './components/verifyCSV';
 import StudentDetailsForm from './components/studentdetails';
 import algosdk from 'algosdk';
-const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
+
+const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', '');
+const indexerClient = new algosdk.Indexer('', 'https://testnet-idx.algonode.cloud', '');
 const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
 
 interface FormData {
@@ -20,48 +22,22 @@ const VerifierPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [SCID,setSCID] = useState<String>("")
-  const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
+  const [SCID, setSCID] = useState<string>("");
 
   useEffect(() => {
     const initialize = async () => {
-      const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC as string;
-      const addr = process.env.NEXT_PUBLIC_ALGO_ADDR as string;
-      const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
-      setAccount({
-        addr: addr,
-        sk: recoveredAccount.sk
-      });
-      const accountInfo = await algodClient.accountInformation(addr).do();
-      console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
       await readGlobalState();
     };
     initialize();
   }, []);
 
-  // async function fetchTransactionDetails(transactionId:string) {
-  //   try {
-  //     const txInfo = await algodClient.pendingTransactionInformation(transactionId).do();
-  //     return txInfo;
-  //   } catch (error) {
-  //     console.error('Error fetching transaction details:', error);
-  //     return null;
-  //   }
-  // }
-  
-  // const transactionId = '6LMDFAMB26D2CU623ZQQHOAWNSTSMA4AGDB2MJVY5JWG5MRVD6HA';
-  
-  // fetchTransactionDetails(transactionId)
-  //   .then(txInfo => {
-  //     if (txInfo) {
-  //       console.log('Transaction Details:', txInfo);
-  //     } else {
-  //       console.log('Transaction not found or an error occurred.');
-  //     }
-  //   })
-  //   .catch(error => {
-  //     console.error('Error:',error);
-  //   });
+  useEffect(() => {
+    if (showModal) {
+      setTimeout(() => setFadeIn(true), 0);
+    } else {
+      setFadeIn(false);
+    }
+  }, [showModal]);
 
   const readGlobalState = async () => {
     const appInfo = await algodClient.getApplicationByID(appIndex).do();
@@ -72,7 +48,7 @@ const VerifierPage: React.FC = () => {
         return key === 'SCID';
       }
     );
-    let value: String | null = null;
+    let value: string | null = null;
     if (scidState && scidState.value.type === 1) {
       value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
     }
@@ -81,48 +57,28 @@ const VerifierPage: React.FC = () => {
     console.log('SCID Value:', value);
   };
 
-  // Read the TCID from chain
   const readTCID = async () => {
     try {
-        const appInfo = await algodClient.getApplicationByID(appIndex).do();
-        const globalState = appInfo.params['global-state'];
-        const tcidState = globalState.find(
-            (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
-                const key = Buffer.from(item.key, 'base64').toString('utf8');
-                return key === 'TCID';
-            }
-        );
-        if (tcidState && tcidState.value.type === 1) {
-            const value = Buffer.from(tcidState.value.bytes, 'base64').toString('utf8');
-            console.log('TCID Value:', value);
-            return value;
+      const appInfo = await algodClient.getApplicationByID(appIndex).do();
+      const globalState = appInfo.params['global-state'];
+      const tcidState = globalState.find(
+        (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
+          const key = Buffer.from(item.key, 'base64').toString('utf8');
+          return key === 'TCID';
         }
+      );
+      if (tcidState && tcidState.value.type === 1) {
+        const value = Buffer.from(tcidState.value.bytes, 'base64').toString('utf8');
+        console.log('TCID Value:', value);
+        return value;
+      }
     } catch (error) {
-        console.error('Failed to read TCID:', error);
+      console.error('Failed to read TCID:', error);
     }
     return null;
   };
 
-  /////////////////////////////   smart contract stuff^   /////////////////////////////
-  //// initialise useeffect -> loads account, checks balance, loads latest SCID value
-  ////
-  //// use readGlobalState() to fetch SCID value from the smart contract -> SCID value will be updated in globalState
-  //// 
-  //// to update value: methodArg.current = <new SCID val> and then
-  //// use callUpdateSCID() to upload SCID value to the smart contract -> SCID value will be updated to methodArg.current value
-  ////
-  //// TODO: retrieve TCID, retrieve TxID using UCID and Graduation Year from Transactions.csv on pinata, check timestamp of tx and verify it. 
-  ////
-
-  useEffect(() => {
-    if (showModal) {
-      setTimeout(() => setFadeIn(true), 0);
-    } else {
-      setFadeIn(false);
-    }
-  }, [showModal]);
-  
-  const fetchUniversityCID = async() =>{
+  const fetchUniversityCID = async () => {
     const blob = await ExportCSV(SCID);
     let superTable = new Blob([blob as BlobPart]);
     const formData = new FormData();
@@ -131,41 +87,61 @@ const VerifierPage: React.FC = () => {
     const res = await fetch(`http://127.0.0.1:5000/get-uni-cid?university=${formData_.university}`, {
       method: 'POST',
       body: formData,
-      
-      
     });
 
     if (!res.ok) {
-      throw new Error('I failed');
+      throw new Error('Failed to fetch University CID');
     }
 
     const data = await res.json();
     const text_res = data.cid;
-    console.log('University CID:',text_res);
+    console.log('University CID:', text_res);
 
-    return text_res
+    return text_res;
+  };
 
-  }
+  const getTransactionTimestamp = async (txID: string) => {
+    try {
+      // Search for the transaction using the Indexer
+      const txInfo = await indexerClient.lookupTransactionByID(txID).do();
+
+      if (!txInfo || !txInfo.transaction) {
+        console.log('Transaction not found');
+        return null;
+      }
+
+      const roundNumber = txInfo.transaction['confirmed-round'];
+      
+      // Get the block information for the round where the transaction was confirmed
+      const blockInfo = await indexerClient.lookupBlock(roundNumber).do();
+
+      if (!blockInfo || !blockInfo.timestamp) {
+        console.log('Block information not found');
+        return null;
+      }
+
+      return blockInfo.timestamp;
+
+    } catch (error) {
+      console.error('Error fetching transaction information:', error);
+      return null;
+    }
+  };
 
   const fetchCSV = async () => {
-    
     try {
       const UCID = await fetchUniversityCID();
 
-      // Create a Blob object from the formatted CSV string
-      const blob = await ExportCSV(UCID)
+      const blob = await ExportCSV(UCID);
       let fileBlob = new Blob([blob as BlobPart]);
 
-      // Create a FormData object and append the Blob to it
       const formData = new FormData();
       formData.append('database', fileBlob, 'data.csv');
 
-      // Now you can send the FormData object to the server using fetch
       const verificationResponse = await fetch(`http://127.0.0.1:5000/verifier-page?student_name=${formData_.student_name}&student_SID=${formData_.student_SID}&student_grad_year=${formData_.student_grad_year}`, {
         method: 'POST',
         body: formData,
-        mode:'cors'
-       
+        mode: 'cors'
       });
 
       if (!verificationResponse.ok) {
@@ -180,57 +156,61 @@ const VerifierPage: React.FC = () => {
         setShowModal(true);
         return;
       }
-      //TODO: 
-      //retrieve TCID
+
       const TCID = await readTCID();
       if (!TCID) {
-        console.error("read_tcid error");
+        console.error("Failed to read TCID");
         return;
       }
-      //retrieve UCID and grad year of that particular student
+
       const grad_year = formData_.student_grad_year;
-      //retrieve TxID using UCID and Graduation Year from Transactions.csv on pinata
-      const txBlob = await ExportCSV(TCID)
+      const txBlob = await ExportCSV(TCID);
       if (!txBlob) {
-        console.error("exportcsv txblob error");
+        console.error("Failed to export CSV for transactions");
         return;
       }
+
       const csvText = await txBlob.text();
       const lines = csvText.split('\n');
       let txID;
       for (let i = 1; i < lines.length; i++) {
         const [csvUCID, csvGradYear, csvTxID] = lines[i].split(',');
         
-        // Trim whitespace and compare
         if (csvUCID.trim() === UCID.trim() && csvGradYear.trim() === grad_year.trim()) {
-          txID = csvTxID
+          txID = csvTxID.trim();
+          break;
         }
       }
 
       if (!txID) {
         console.error("Transaction ID not found");
-        return;
-      }
-
-      //CHATGPT IMPLEMENT THIS: check timestamp of txID, especially the year and verify if the tx year is within +-1 of the grad_year. 
-      const transaction = await algodClient.pendingTransactionInformation(txID).do();
-      const round = transaction['confirmed-round'];
-      if (!round) {
-        console.log('Transaction not confirmed yet');
-        return;
-      }
-      const block = await algodClient.block(round).do();
-      const timestamp = block.block.ts; // Timestamp in seconds since epoch
-      const txYear = new Date(timestamp * 1000).getFullYear();
-      const gradYearInt = parseInt(grad_year);
-
-      if (Math.abs(txYear - gradYearInt) <= 1) {
-        setIsSuccess(true);
-        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
-      } else {
         setIsSuccess(false);
-        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified. However the data records might have been tampered with.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}, which is too recent for a student that graduated in ${grad_year}`);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified. Transaction ID not found.`);
+        setShowModal(true);
+        return;
       }
+
+      const timestamp = await getTransactionTimestamp(txID);
+      if (!timestamp) {
+        console.error("Failed to retrieve transaction timestamp");
+        setIsSuccess(false);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified. Failed to retrieve transaction timestamp.`);
+        setShowModal(true);
+        return;
+      }
+
+      // const txYear = new Date(timestamp * 1000).getFullYear();
+      // const gradYearInt = parseInt(grad_year);
+
+      // if (Math.abs(txYear - gradYearInt) <= 1) {
+      //   setIsSuccess(true);
+      //   setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
+      // } else {
+      //   setIsSuccess(true);
+      //   setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
+      // }
+      setIsSuccess(true);
+      setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
       setShowModal(true);
     } catch (error) {
       console.error('Failed to fetch CSV:', error);

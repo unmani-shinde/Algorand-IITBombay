@@ -13,12 +13,13 @@ export default function Zigzag() {
           {/* Section header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16" data-aos="fade-right">
             <div className="inline-flex text-sm font-semibold py-1 px-3 m-2 text-green-600 bg-green-200 rounded-full mb-4">Verify, Progress, Succeed.</div>
-            <h1 className="h2 mt-4 mb-4">How you can help us verify your students</h1>
+            <h1 className="h2 mt-4 mb-4">How you can help us verify your students' credentials</h1>
             <p className="text-xl text-gray-400"></p>
           </div>
 
           {/* Items */}
           <div className="grid gap-20">
+          {/* TODO: replace images with diagrams of the university certificate issue process */}
 
             {/* 1st item */}
             <div className="md:grid md:grid-cols-12 md:gap-6 items-center">

@@ -1,26 +1,15 @@
 'use client'
 
 import Link from 'next/link';
-import React, { useEffect, useRef, useState } from 'react';
 import MobileMenu from './mobile-menu';
 
 export default function Header() {
-  const ref = useRef<HTMLElement>(null);
-  const [isIntersecting, setIntersecting] = useState(true);
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const observer = new IntersectionObserver(([entry]) =>
-      setIntersecting(entry.isIntersecting)
-    );
-
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <header ref={ref} className={`fixed w-full z-30 ${isIntersecting ? '' : 'bg-zinc-900/500 border-b border-zinc-800'}`}>
+    <header 
+      className={`fixed inset-x-0 top-0 z-50 backdrop-blur duration-200 border-b border-zinc-800`}
+      data-aos="fade-up"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-20">
           {/* Site branding */}
