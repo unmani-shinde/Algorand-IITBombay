@@ -1,10 +1,49 @@
 'use client'
-import VideoThumb from '@/public/images/hero-image-01.jpg'
-import ModalVideo from '@/components/modal-video'
 import { Fingerprint, FileText, Lock, Clock, Globe, CheckCircle } from "lucide-react";
 import CountUp from 'react-countup';
+import algosdk from 'algosdk';
+import React, { useEffect, useState } from 'react';
+
+const indexerClient = new algosdk.Indexer('', 'https://testnet-idx.algonode.cloud', '');
+const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
+
+const fetchTransactionCountForApp = async (appIndex: number) => {
+  try {
+    // Fetch transactions involving the application ID
+    const response = await indexerClient.searchForTransactions()
+      .applicationID(appIndex)
+      .do();
+    
+    // The transactions are in the 'transactions' field of the response
+    const transactions = response.transactions;
+    
+    // The count of transactions
+    const transactionCount = transactions.length;
+
+    console.log(`Number of transactions involving application ID ${appIndex}: ${transactionCount}`);
+    return transactionCount;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
+};
+
+// Example usage
+fetchTransactionCountForApp(appIndex);
+
 
 export default function Hero() {
+  const [transactionCount, setTransactionCount] = useState(0);
+
+  useEffect(() => {
+    const getTransactionCount = async () => {
+      const count = await fetchTransactionCountForApp(appIndex);
+      setTransactionCount(count);
+    };
+
+    getTransactionCount();
+  }, []);
+
   return (
     <section className="">
       {/* Illustration behind hero content */}
@@ -30,10 +69,9 @@ export default function Hero() {
               Leverage the security and efficiency of Algorand blockchain to make sure who you are hiring is who they claim to be.
             </p>
             {/* Animated Counter */}
-            <div className="text-2xl font-bold text-purple-600 mb-16" data-aos="fade-right" data-aos-delay="200">
-              No. of verifiable certificates<br />
-              <CountUp className='text-4xl' end={3100000} duration={3} separator="," />
-              {/* TODO: replace with actual value for number of UCIDs from pinata and change to number of universities that trust us*/}
+            <div className="text-xl font-bold text-purple-600 mb-16" data-aos="fade-right" data-aos-delay="200">
+              <CountUp className='text-4xl' end={transactionCount} duration={5} separator="," />
+              <br/>Algorand App calls
             </div>
             {/* Buttons for Universities and Employers */}
             <div data-aos="fade-right" data-aos-delay="300">
