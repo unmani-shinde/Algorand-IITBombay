@@ -1,5 +1,4 @@
 export default async function deleteFromIPFS(old_scid:string) {
-    const fetch = (await import("node-fetch")).default;
     try {
         const response = await fetch(
           `https://api.pinata.cloud/pinning/unpin/${old_scid}`,

@@ -1,159 +1,313 @@
-export const metadata = {
-  title: 'Issuer Login',
-  description: 'Page description',
-}
+"use client"; // Ensure this component runs on the client side
 
-// import Link from 'next/link'
+import { useState, useEffect,useRef } from 'react';
+import { Magic } from 'magic-sdk';
+import { AlgorandExtension } from '@magic-ext/algorand';
+import * as abi from '@/app/contracts/artifacts/contract.json';
+import algosdk from 'algosdk';
+const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
+const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
 
-// export default function SignUp() {
-//   return (
-//     <section className="relative">
-//       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-//         <div className="pt-32 pb-12 md:pt-40 md:pb-20">
-
-//           {/* Page header */}
-//           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
-//             <h1 className="h1">Welcome. We exist to make verification easier.</h1>
-//           </div>
-
-//           {/* Form */}
-//           <div className="max-w-sm mx-auto">
-//             <form>
-//               <div className="flex flex-wrap -mx-3">
-//                 <div className="w-full px-3">
-//                   <button className="btn px-0 text-white bg-red-600 hover:bg-red-700 w-full relative flex items-center">
-//                     <svg className="w-4 h-4 fill-current text-white opacity-75 shrink-0 mx-4" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-//                       <path d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z" />
-//                     </svg>
-//                     <span className="h-6 flex items-center border-r border-white border-opacity-25 mr-4" aria-hidden="true"></span>
-//                     <span className="flex-auto pl-16 pr-8 -ml-16">Sign up with Google</span>
-//                   </button>
-//                 </div>
-//               </div>
-//             </form>
-//             <div className="flex items-center my-6">
-//               <div className="border-t border-gray-700 border-dotted grow mr-3" aria-hidden="true"></div>
-//               <div className="text-gray-400">Or, register with your email</div>
-//               <div className="border-t border-gray-700 border-dotted grow ml-3" aria-hidden="true"></div>
-//             </div>
-//             <form>
-//               <div className="flex flex-wrap -mx-3 mb-4">
-//                 <div className="w-full px-3">
-//                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="full-name">Full Name <span className="text-red-600">*</span></label>
-//                   <input id="full-name" type="text" className="form-input w-full text-gray-300" placeholder="First and last name" required />
-//                 </div>
-//               </div>
-//               <div className="flex flex-wrap -mx-3 mb-4">
-//                 <div className="w-full px-3">
-//                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="company-name">Company Name <span className="text-red-600">*</span></label>
-//                   <input id="company-name" type="text" className="form-input w-full text-gray-300" placeholder="Your company or app name" required />
-//                 </div>
-//               </div>
-//               <div className="flex flex-wrap -mx-3 mb-4">
-//                 <div className="w-full px-3">
-//                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="email">Work Email <span className="text-red-600">*</span></label>
-//                   <input id="email" type="email" className="form-input w-full text-gray-300" placeholder="you@yourcompany.com" required />
-//                 </div>
-//               </div>
-//               <div className="flex flex-wrap -mx-3 mb-4">
-//                 <div className="w-full px-3">
-//                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="password">Password <span className="text-red-600">*</span></label>
-//                   <input id="password" type="password" className="form-input w-full text-gray-300" placeholder="Password (at least 10 characters)" required />
-//                 </div>
-//               </div>
-//               <div className="text-sm text-gray-500 text-center">
-//                 I agree to be contacted by AlgoVerify about this offer as per the AlgoVerify <Link href="#" className="underline text-gray-400 hover:text-gray-200 hover:no-underline transition duration-150 ease-in-out">Privacy Policy</Link>.
-//               </div>
-//               <div className="flex flex-wrap -mx-3 mt-6">
-//                 <div className="w-full px-3">
-//                   <button className="btn text-white bg-purple-600 hover:bg-purple-700 w-full">Sign up</button>
-//                 </div>
-//               </div>
-//             </form>
-//             <div className="text-gray-400 text-center mt-6">
-//               Already using AlgoVerify? <Link href="/signin" className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out">Sign in</Link>
-//             </div>
-//           </div>
-
-//         </div>
-//       </div>
-//     </section>
-//   )
-// }
-
-
-
-
-import Link from 'next/link'
+import ExportCSV from '@/app/verifier-page/components/verifyCSV';
+import pinFiletoIPFS from '@/app/issuer-page/components/pinFiletoIFPS';
+import deleteFromIPFS from '@/app/components/deleteFromIPFS';
+import TrustIDModal from './components/Modal';
 
 export default function SignIn() {
+  const [emailID, setEmailID] = useState<string>('');
+  const [organization,setOrganization] = useState<string>('');
+  const [city,setCity] = useState<string>('');
+  const [country,setCountry] = useState<string>('');
+  const [provider, setProvider] = useState<Magic<{ algorand: AlgorandExtension }> | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [SCID,setSCID] = useState<String>("")
+  const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
+  const [trustID,setTrustID] = useState<string>("");
+  const [txID, setTxId] = useState<String>('');
+  const [openModal, setOpenModal] = useState(true);
+  const methodArg = useRef('')
+
+  useEffect(() => {
+    const initialize = async () => {
+      console.log("Hieee");
+      const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC?.toString() as string || "";
+      const addr = process.env.NEXT_PUBLIC_ALGO_ADDR?.toString() as string || ""; 
+      const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
+      setAccount({
+        addr: addr,
+        sk: recoveredAccount.sk
+      });
+      const accountInfo = await algodClient.accountInformation(addr).do();
+      console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
+      await readGlobalState();
+    };
+    initialize();
+  }, []);
+
+  const readGlobalState = async () => {
+    const appInfo = await algodClient.getApplicationByID(appIndex).do();
+    const globalState = appInfo.params['global-state'];
+    const scidState = globalState.find(
+      (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
+        const key = Buffer.from(item.key, 'base64').toString('utf8');
+        return key === 'SCID';
+      }
+    );
+    let value: String | null = null;
+    if (scidState && scidState.value.type === 1) {
+      value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
+    }
+    if (value) setSCID(value);
+    else setSCID("");
+    console.log('SCID Value:', value);
+  };
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const magic = new Magic('pk_live_B5BD957434321A6E', {
+        extensions: {
+          algorand: new AlgorandExtension({
+            rpcUrl: 'https://testnet-api.algonode.cloud', // Should remain empty as per the configuration
+          }),
+        },
+      });
+      setProvider(magic);
+    }
+  }, []);
+
+  const generateTrustID = () => {
+    const getInitials = (text: string) => 
+      text.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+  
+    const orgInitials = getInitials(organization);
+    const cityInitials = getInitials(city);
+    const countryInitials = getInitials(country);
+  
+    const initials = `${orgInitials}_${cityInitials}_${countryInitials}`;
+
+    return initials
+    
+  };
+  
+
+  const LogTrustID = (event:any) =>{
+    event.preventDefault();
+    let ALGOTrustID = generateTrustID();
+    console.log(ALGOTrustID);
+  }
+
+  function convertJsonToCsv(jsonData:any) {
+    const header = Object.keys(jsonData[0]).join(',') + '\n';
+    const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
+    return header + rows;
+}
+
+    const callUpdateSCID = async () => {
+      if (!account) return;
+      if (methodArg.current == "" || methodArg.current == " " || methodArg.current == "-1") {
+        console.log("methodArg empty:", methodArg.current);
+        return;
+      }
+      
+      const suggestedParams = await algodClient.getTransactionParams().do();
+      const atc = new algosdk.AtomicTransactionComposer();
+
+      const contract = new algosdk.ABIContract(abi);
+      const updateMethod = algosdk.getMethodByName(contract.methods, 'update_SCID');
+
+      atc.addMethodCall({
+        appID: appIndex,
+        method: updateMethod,
+        methodArgs: [methodArg.current], // Use the state value as the method argument
+        sender: account.addr,
+        suggestedParams,
+        signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
+      });
+
+  try {
+    const result = await atc.execute(algodClient, 3);
+    console.log('\nSCID updated!\n');
+
+    // Log transaction IDs
+    const transactionID = result.txIDs[0];
+    console.log(`Transaction ID: ${transactionID}`);
+    setTxId(transactionID);
+    //await updateTransactions();
+
+    await readGlobalState();
+  } catch (error) {
+    console.error('Failed to update SCID:', error);
+  }
+};
+
+  const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    
+    event.preventDefault();
+    if (provider) {
+      try {
+        let oldSCID = SCID;        
+        const blob = await ExportCSV(oldSCID);
+        let UCID_Map = new Blob([blob as BlobPart]);
+        const formData = new FormData();
+        formData.append('ucid_map',UCID_Map, 'data.csv');
+        let ALGOTrustID = generateTrustID();
+        setOpenModal(true);
+
+        const res = await fetch(`http://127.0.0.1:5000/register-university?algotrustid=${ALGOTrustID}&university=${organization}&orgemail=${emailID}`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+
+        if(res.ok){
+          try {
+            const data = await res.json();
+            const csvString = convertJsonToCsv(data);
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const newSCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
+            methodArg.current = newSCID;
+            await callUpdateSCID();
+            await deleteFromIPFS(oldSCID as string); 
+
+            const did = await provider.auth.loginWithEmailOTP({ email: emailID, showUI: true });
+            console.log(`DID Token: ${did}`);
+            const userInfo = await provider.user.getInfo();
+            console.log(`UserInfo:`, userInfo);
+            setUserInfo(userInfo);
+
+            setTrustID(generateTrustID());
+            
+          } catch (error) {
+              console.error("MAGIC Setup failed:", error);     
+          }
+
+        }
+        else if(res.status==400){
+          console.log("University record exists");
+        }
+        else{
+          console.log("File upload failed.");
+        }
+
+
+
+        
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    } else {
+      console.error("Magic instance is not initialized");
+    }
+  };
+
   return (
     <section className="relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="pt-32 pb-12 md:pt-40 md:pb-20">
-
-          {/* Page header */}
           <div className="max-w-4xl mx-auto text-center pb-12 md:pb-10">
-            <h1 className="h1">Issue a Verifiable Document.</h1>
-          </div>
+            <h1 style={{marginBottom:'-5vh',marginTop:'-10vh'}} className="h1">Issue a Verifiable Credential.</h1>
 
-          {/* Form */}
-          <div className="max-w-sm mx-auto">
-            <form>
-              <div className="flex flex-wrap -mx-3">
-                <div className="w-full px-3">
-                  <button className="btn px-0 text-white bg-red-600 hover:bg-red-700 w-full relative flex items-center">
-                    <svg className="w-4 h-4 fill-current text-white opacity-75 shrink-0 mx-4" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z" />
-                    </svg>
-                    <span className="h-6 flex items-center border-r border-white border-opacity-25 mr-4" aria-hidden="true"></span>
-                    <span className="flex-auto pl-16 pr-8 -ml-16">Sign in with Google</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-            <div className="flex items-center my-6">
-              <div className="border-t border-gray-700 border-dotted grow mr-3" aria-hidden="true"></div>
-              <div className="text-gray-400">Or, sign in with your email</div>
-              <div className="border-t border-gray-700 border-dotted grow ml-3" aria-hidden="true"></div>
-            </div>
-            <form>
-              <div className="flex flex-wrap -mx-3 mb-4">
-                <div className="w-full px-3">
-                  <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="email">Email<span className="text-red-600">*</span></label>
-                  <input id="email" type="email" className="form-input w-full text-gray-300" placeholder="you@youruniversity.com" required />
-                </div>
-              </div>
-              <div className="flex flex-wrap -mx-3 mb-4">
-                <div className="w-full px-3">
-                  <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="password">Password <span className="text-red-600">*</span></label>
-                  <input id="password" type="password" className="form-input w-full text-gray-300" placeholder="Password (at least 10 characters)" required />
-                </div>
-              </div>
-              <div className="flex flex-wrap -mx-3 mb-4">
-                <div className="w-full px-3">
-                  <div className="flex justify-between">
-                    <label className="flex items-center">
-                      <input type="checkbox" className="form-checkbox" />
-                      <span className="text-gray-400 ml-2">Keep me signed in</span>
+            <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+              <div className="mt-1 sm:mx-auto sm:w-full sm:max-w-sm">
+                <form className="space-y-6">
+
+                <div>
+                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                      Name of the Organization
                     </label>
-                    <Link href="/reset-password" className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out">Forgot Password?</Link>
+                    <div className="mt-2">
+                      <input
+                        id="organization"
+                        name="organization"
+                        type="text"
+                        required
+                        value={organization}
+                        onChange={(e) => setOrganization(e.target.value)}
+                        className="text-md tracking-wide bg-transparent block w-full rounded-md border-0 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                      City
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        id="city"
+                        name="city"
+                        type="text"
+                        required
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="text-md tracking-wide bg-transparent block w-full rounded-md border-0 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                      Country
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        id="country"
+                        name="country"
+                        type="text"
+                        required
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="text-md tracking-wide bg-transparent block w-full rounded-md border-0 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+
+
+
+                  <div>
+                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                      Organization Email Address
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={emailID}
+                        onChange={(e) => setEmailID(e.target.value)}
+                        className="text-md tracking-wide bg-transparent block w-full rounded-md border-0 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+
+
+
+                  <div className='flex flex-col'>
+
+                    <button
+                      onClick={handleLogin}
+                      className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                      Create ALGOTrust Wallet and ID
+                    </button>
+                    <TrustIDModal showModal={openModal} trustID={trustID} />
+                  </div>
+                </form>
+
+                <p className="mt-10 text-center text-sm text-gray-500">
+                  Already Registered?{' '}
+                  <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                    Click here to Login
+                  </a>
+                </p>
               </div>
-              <div className="flex flex-wrap -mx-3 mt-6">
-                <div className="w-full px-3">
-                  <button className="btn text-white bg-purple-600 hover:bg-purple-700 w-full">Sign in</button>
-                </div>
-              </div>
-            </form>
-            <div className="text-gray-400 text-center mt-6">
-              Don’t you have an account? <Link href="/signup" className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out">Sign up</Link>
             </div>
           </div>
-
         </div>
       </div>
     </section>
-  )
+  );
 }

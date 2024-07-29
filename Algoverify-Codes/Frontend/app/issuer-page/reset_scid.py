@@ -26,7 +26,7 @@ with open('../contracts/artifacts/contract.json', 'r') as f:
 contract = Contract.from_json(json.dumps(contract_json))
 
 # New SCID value
-NEW_SCID = "QmbSNjK5gDF2mAaqzXNsVAGL37PWVPuK6MQWAkF7xv1Gm6"
+NEW_SCID = "QmeXMGgv39vMamgEhkM9PtfthLSnvYfqQr7HYXhLHap9wK"
 NEW_TCID = "Qmd7t8Y58uxDim33tgnfE9vp19pUXJnJ2j9v8Z6goXbwS6"
 
 def update_scid():

@@ -1,9 +1,14 @@
 export default async function ExportCSV(CID:String) {
-    
-    
+    const pinataGatewayToken = 'YAEBWu19xFZxN8Nq70UUNPuCokSwjfhyjqTOnar706ROUQ7PJt0O6AAQtkJn5ooa';
+  const tokenURI = `https://cyan-historic-walrus-49.mypinata.cloud/ipfs/${CID}?pinataGatewayToken=${pinataGatewayToken}`;
+  console.log(tokenURI);
+  
+
+   
+
     const URL = `https://ipfs.io/ipfs/${CID}`;
     try {
-        const response = await fetch(URL);
+        const response = await fetch(tokenURI);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

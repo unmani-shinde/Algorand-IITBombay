@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Home - AlgoVerify',
+  title: 'ALGOTrust',
   description: 'Page description',
 }
 

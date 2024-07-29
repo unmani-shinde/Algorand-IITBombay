@@ -10,6 +10,33 @@ import traceback
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/register-university',methods=["POST"])
+def reg_UNI():
+    UCID_Map = request.files.get('ucid_map')
+    university = request.args.get('university')
+    ALGOTrustID = request.args.get('algotrustid')
+    orgEmailID = request.args.get('orgemail')
+    ucid_map_df = pd.read_csv(UCID_Map)
+
+    # Check if the university exists in the DataFrame
+    if ALGOTrustID not in ucid_map_df['ALGOTrust ID:'].values:
+        new_row = {
+            'ID:': str(len(ucid_map_df) + 1),
+            'Name of University:':university,  # Replace with actual data
+            'University Content Identifier (UCID):': '',  # Replace with actual data
+            'ALGOTrust ID:': ALGOTrustID,  
+            'Registered Organization Address:':orgEmailID
+        }
+        # Append the new row to the DataFrame
+        df_new_rows = pd.DataFrame([new_row])
+        ucid_map_df = pd.concat([ucid_map_df,df_new_rows])
+        json_response = ucid_map_df.to_json(orient='records')
+        return json_response, 200
+    
+    else:
+        return jsonify({"university log exists already":-1}), 400
+
+
 @app.route('/get-uni-cid', methods=["POST"])
 def get_CID():
     super_database = request.files.get('super_database')

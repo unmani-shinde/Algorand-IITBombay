@@ -39,6 +39,30 @@ const VerifierPage: React.FC = () => {
     initialize();
   }, []);
 
+  // async function fetchTransactionDetails(transactionId:string) {
+  //   try {
+  //     const txInfo = await algodClient.pendingTransactionInformation(transactionId).do();
+  //     return txInfo;
+  //   } catch (error) {
+  //     console.error('Error fetching transaction details:', error);
+  //     return null;
+  //   }
+  // }
+  
+  // const transactionId = '6LMDFAMB26D2CU623ZQQHOAWNSTSMA4AGDB2MJVY5JWG5MRVD6HA';
+  
+  // fetchTransactionDetails(transactionId)
+  //   .then(txInfo => {
+  //     if (txInfo) {
+  //       console.log('Transaction Details:', txInfo);
+  //     } else {
+  //       console.log('Transaction not found or an error occurred.');
+  //     }
+  //   })
+  //   .catch(error => {
+  //     console.error('Error:',error);
+  //   });
+
   const readGlobalState = async () => {
     const appInfo = await algodClient.getApplicationByID(appIndex).do();
     const globalState = appInfo.params['global-state'];
