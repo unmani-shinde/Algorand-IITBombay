@@ -1,44 +1,38 @@
-"use client"; // Ensure this component runs on the client side
-
-import { useState, useEffect,useRef } from 'react';
+"use client"
+import { useState, useEffect, useRef } from 'react';
 import { Magic } from 'magic-sdk';
 import { AlgorandExtension } from '@magic-ext/algorand';
-import * as abi from '@/app/contracts/artifacts/contract.json';
+import * as abi from '../../../../Backend/artifacts/contract.json';
 import algosdk from 'algosdk';
+import TrustIDModal from './components/Modal';
+
 const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', undefined);
 const appIndex = Number(process.env.NEXT_PUBLIC_ALGO_APP_ID);
 
-import ExportCSV from '@/app/verifier-page/components/verifyCSV';
-import pinFiletoIPFS from '@/app/issuer-page/components/pinFiletoIFPS';
-import deleteFromIPFS from '@/app/components/deleteFromIPFS';
-import TrustIDModal from './components/Modal';
-
 export default function SignIn() {
   const [emailID, setEmailID] = useState<string>('');
-  const [organization,setOrganization] = useState<string>('');
-  const [city,setCity] = useState<string>('');
-  const [country,setCountry] = useState<string>('');
+  const [organization, setOrganization] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [country, setCountry] = useState<string>('');
+  const [trustID, setTrustID] = useState<string>('');
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [ready,setReady] = useState<boolean>(false);
+  const [walletAddress, setWalletAddress] = useState<string>('');
   const [provider, setProvider] = useState<Magic<{ algorand: AlgorandExtension }> | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [SCID,setSCID] = useState<String>("")
   const [account, setAccount] = useState<{ addr: string; sk: Uint8Array } | null>(null);
-  const [trustID,setTrustID] = useState<string>("");
-  const [txID, setTxId] = useState<String>('');
-  const [openModal, setOpenModal] = useState(true);
-  const methodArg = useRef('')
+  const [txID, setTxId] = useState<string>('');
+  const [walletState,setWalletState] = useState<string>('');
+  const methodArg = useRef('');
 
   useEffect(() => {
     const initialize = async () => {
-      console.log("Hieee");
       const mnemonic = process.env.NEXT_PUBLIC_ALGO_MNEMONIC?.toString() as string || "";
       const addr = process.env.NEXT_PUBLIC_ALGO_ADDR?.toString() as string || ""; 
       const recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
-      setAccount({
-        addr: addr,
-        sk: recoveredAccount.sk
-      });
+      setAccount({ addr, sk: recoveredAccount.sk });
+      setWalletAddress(addr);
       const accountInfo = await algodClient.accountInformation(addr).do();
-      console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos')
+      console.log('\nBalance:', accountInfo.amount / 1000000, 'Algos');
       await readGlobalState();
     };
     initialize();
@@ -47,28 +41,54 @@ export default function SignIn() {
   const readGlobalState = async () => {
     const appInfo = await algodClient.getApplicationByID(appIndex).do();
     const globalState = appInfo.params['global-state'];
-    const scidState = globalState.find(
+    const walletAddrState = globalState.find(
       (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
         const key = Buffer.from(item.key, 'base64').toString('utf8');
-        return key === 'SCID';
+        return key === 'WalletAddr';
       }
     );
-    let value: String | null = null;
-    if (scidState && scidState.value.type === 1) {
-      value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
+    let value: string | null = null;
+    if (walletAddrState && walletAddrState.value.type === 1) {
+      value = Buffer.from(walletAddrState.value.bytes, 'base64').toString('utf8');
     }
-    if (value) setSCID(value);
-    else setSCID("");
-    console.log('SCID Value:', value);
+    setWalletState(value || '');
+    console.log('State Wallet Address Value:', value);
   };
 
+  const callUpdateWalletAddress = async () => {
+    if (!account || !methodArg.current) return;
+
+    const suggestedParams = await algodClient.getTransactionParams().do();
+    const atc = new algosdk.AtomicTransactionComposer();
+
+    const contract = new algosdk.ABIContract(abi);
+    const updateMethod = algosdk.getMethodByName(contract.methods, 'update_wallet_addr');
+
+    atc.addMethodCall({
+      appID: appIndex,
+      method: updateMethod,
+      methodArgs: [methodArg.current],
+      sender: account.addr,
+      suggestedParams,
+      signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
+    });
+
+    try {
+      const result = await atc.execute(algodClient, 3);
+      const transactionID = result.txIDs[0];
+      setTxId(transactionID);
+      await readGlobalState();
+    } catch (error) {
+      console.error('Failed to update UCID:', error);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const magic = new Magic('pk_live_B5BD957434321A6E', {
         extensions: {
           algorand: new AlgorandExtension({
-            rpcUrl: 'https://testnet-api.algonode.cloud', // Should remain empty as per the configuration
+            rpcUrl: 'https://testnet-api.algonode.cloud',
           }),
         },
       });
@@ -84,115 +104,44 @@ export default function SignIn() {
     const cityInitials = getInitials(city);
     const countryInitials = getInitials(country);
   
-    const initials = `${orgInitials}_${cityInitials}_${countryInitials}`;
-
-    return initials
-    
+    // Generate a random nonce between 0 and 1024
+    const generateRandomNonce = () => {
+      const nonce = Math.floor(Math.random() * 1024); // Random integer between 0 and 1024
+      return nonce.toString().padStart(4, '0'); // Convert to string and pad to 4 digits
+    };
+  
+    const nonce = generateRandomNonce();
+  
+    return `${orgInitials}${cityInitials}${countryInitials}${nonce}`;
   };
   
-
-  const LogTrustID = (event:any) =>{
-    event.preventDefault();
-    let ALGOTrustID = generateTrustID();
-    console.log(ALGOTrustID);
-  }
-
-  function convertJsonToCsv(jsonData:any) {
-    const header = Object.keys(jsonData[0]).join(',') + '\n';
-    const rows = jsonData.map((obj:any) => Object.values(obj).join(',')).join('\n');
-    return header + rows;
-}
-
-    const callUpdateSCID = async () => {
-      if (!account) return;
-      if (methodArg.current == "" || methodArg.current == " " || methodArg.current == "-1") {
-        console.log("methodArg empty:", methodArg.current);
-        return;
-      }
-      
-      const suggestedParams = await algodClient.getTransactionParams().do();
-      const atc = new algosdk.AtomicTransactionComposer();
-
-      const contract = new algosdk.ABIContract(abi);
-      const updateMethod = algosdk.getMethodByName(contract.methods, 'update_SCID');
-
-      atc.addMethodCall({
-        appID: appIndex,
-        method: updateMethod,
-        methodArgs: [methodArg.current], // Use the state value as the method argument
-        sender: account.addr,
-        suggestedParams,
-        signer: async (unsignedTxns) => unsignedTxns.map((t) => t.signTxn(account.sk)),
-      });
-
-  try {
-    const result = await atc.execute(algodClient, 3);
-    console.log('\nSCID updated!\n');
-
-    // Log transaction IDs
-    const transactionID = result.txIDs[0];
-    console.log(`Transaction ID: ${transactionID}`);
-    setTxId(transactionID);
-    //await updateTransactions();
-
-    await readGlobalState();
-  } catch (error) {
-    console.error('Failed to update SCID:', error);
-  }
-};
-
+  
+  
   const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    
     event.preventDefault();
     if (provider) {
       try {
-        let oldSCID = SCID;        
-        const blob = await ExportCSV(oldSCID);
-        let UCID_Map = new Blob([blob as BlobPart]);
-        const formData = new FormData();
-        formData.append('ucid_map',UCID_Map, 'data.csv');
+
         let ALGOTrustID = generateTrustID();
+        setTrustID(ALGOTrustID);
         setOpenModal(true);
 
-        const res = await fetch(`http://127.0.0.1:5000/register-university?algotrustid=${ALGOTrustID}&university=${organization}&orgemail=${emailID}`, {
-          method: 'POST',
-          body: formData,
-        });
-        
+        try {
+          const did = await provider.auth.loginWithEmailOTP({ email: emailID, showUI: true });
+          console.log(`DID Token: ${did}`);
+          const userInfo = await provider.user.getInfo();
 
-        if(res.ok){
-          try {
-            const data = await res.json();
-            const csvString = convertJsonToCsv(data);
-            const blob = new Blob([csvString], { type: 'text/csv' });
-            const newSCID = await pinFiletoIPFS(blob,"UCID_Map.csv")
-            methodArg.current = newSCID;
-            await callUpdateSCID();
-            await deleteFromIPFS(oldSCID as string); 
-
-            const did = await provider.auth.loginWithEmailOTP({ email: emailID, showUI: true });
-            console.log(`DID Token: ${did}`);
-            const userInfo = await provider.user.getInfo();
-            console.log(`UserInfo:`, userInfo);
-            setUserInfo(userInfo);
-
-            setTrustID(generateTrustID());
-            
-          } catch (error) {
-              console.error("MAGIC Setup failed:", error);     
-          }
-
+          console.log(`UserInfo:`, userInfo);
+          const publicAddress = await provider.algorand.getWallet();
+          console.log('algorand public address', publicAddress);
+          setWalletAddress(publicAddress)
+          methodArg.current = publicAddress;
+          await callUpdateWalletAddress();
+          // setWalletAddress(userInfo.issuer?.slice(9) as string)
+          setReady(true);
+        } catch (error) {
+          console.error("MAGIC Setup failed:", error);
         }
-        else if(res.status==400){
-          console.log("University record exists");
-        }
-        else{
-          console.log("File upload failed.");
-        }
-
-
-
-        
       } catch (error) {
         console.error("Login failed:", error);
       }
@@ -206,14 +155,13 @@ export default function SignIn() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="pt-32 pb-12 md:pt-40 md:pb-20">
           <div className="max-w-4xl mx-auto text-center pb-12 md:pb-10">
-            <h1 style={{marginBottom:'-5vh',marginTop:'-10vh'}} className="h1">Issue a Verifiable Credential.</h1>
+            <h1 style={{ marginBottom: '-5vh', marginTop: '-10vh' }} className="h1">Register to Issue a Verifiable Credential.</h1>
 
             <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
               <div className="mt-1 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form className="space-y-6">
-
-                <div>
-                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                  <div>
+                    <label htmlFor="organization" className="block text-left text-md font-medium leading-6 text-white">
                       Name of the Organization
                     </label>
                     <div className="mt-2">
@@ -230,7 +178,7 @@ export default function SignIn() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                    <label htmlFor="city" className="block text-left text-md font-medium leading-6 text-white">
                       City
                     </label>
                     <div className="mt-2">
@@ -247,7 +195,7 @@ export default function SignIn() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
+                    <label htmlFor="country" className="block text-left text-md font-medium leading-6 text-white">
                       Country
                     </label>
                     <div className="mt-2">
@@ -262,8 +210,6 @@ export default function SignIn() {
                       />
                     </div>
                   </div>
-
-
 
                   <div>
                     <label htmlFor="email" className="block text-left text-md font-medium leading-6 text-white">
@@ -283,23 +229,19 @@ export default function SignIn() {
                     </div>
                   </div>
 
-
-
                   <div className='flex flex-col'>
-
                     <button
                       onClick={handleLogin}
                       className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       Create ALGOTrust Wallet and ID
                     </button>
-                    <TrustIDModal showModal={openModal} trustID={trustID} />
                   </div>
                 </form>
 
                 <p className="mt-10 text-center text-sm text-gray-500">
                   Already Registered?{' '}
-                  <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                  <a href="/signin" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                     Click here to Login
                   </a>
                 </p>
@@ -308,6 +250,15 @@ export default function SignIn() {
           </div>
         </div>
       </div>
+
+      {ready && <TrustIDModal 
+        showModal={openModal}
+        walletTxn={txID} 
+        walletAddress={walletAddress} 
+        trustID={trustID} 
+        onClose={() => setOpenModal(false)} 
+      />}
+      
     </section>
   );
 }

@@ -4,45 +4,47 @@
 import { Button, Modal, Select } from "flowbite-react";
 import { useState } from "react";
 
-export interface ModalActions {
-    showModal: boolean;
-    trustID: string
+// components/Modal.tsx
+import React from 'react';
+
+interface TrustIDModalProps {
+  showModal: boolean;
+  walletAddress: string;
+  walletTxn: string;
+  trustID: string;
+  onClose: () => void;
 }
 
-
-export default function TrustIDModal({showModal,trustID}:ModalActions) {
-  
-  const [modalSize, setModalSize] = useState<string>('md');
-
-  const handleCloseModal = () =>{
-    showModal = !showModal;
-  }
+const TrustIDModal: React.FC<TrustIDModalProps> = ({ showModal, walletAddress, walletTxn,trustID, onClose }) => {
+  if (!showModal) return null;
 
   return (
-    <>
-      <div className="flex flex-wrap gap-4">
 
-      </div>
-      <Modal show={showModal} onClose={handleCloseModal}>
-        <Modal.Header>AlGOTrust ID Notification</Modal.Header>
+    <Modal show={showModal} onClose={onClose}>
+        <Modal.Header><p className="font-bold">AlGOTrust Notification </p></Modal.Header>
         <Modal.Body>
-          <div className="space-y-6 p-6">
-          <h1 className="text-center mb-4 text-xl font-extrabold tracking-tight leading-none text-gray-900 md:text-xl lg:text-xl dark:text-white">
-            Your ALGOTrust ID is:
-          </h1>
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              ID: {trustID}
-            </p>
-            <p className="text-base text-center leading-relaxed text-gray-500 dark:text-gray-400">
-              Please note down this ID, to access your issued credentials, this will not be shown again.
-            </p>
+          <h1 className="text-center text-lg font-bold text-black">Registration Successful!</h1>
+          <div className="space-y-6 p-1">
+        <h3 className="text-black text-md"><strong >Wallet Address:</strong> {walletAddress}</h3>
+        <h3 className="text-black text-md"><strong >Wallet Login ID:</strong> {walletTxn}</h3>
+        <h3 className="text-black text-md"><strong >ALGOTrustID:</strong> {trustID}</h3>
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button className="font-semibold" color="purple" onClick={handleCloseModal}>I have noted my ID</Button>
+          <Button className="font-semibold" color="purple" onClick={onClose}>I have noted my ID</Button>
           
         </Modal.Footer>
       </Modal>
-    </>
+
+
+
+
+
+   
   );
-}
+};
+
+export default TrustIDModal;
+
+
+
