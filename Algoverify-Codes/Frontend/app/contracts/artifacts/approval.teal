@@ -1,82 +1,50 @@
 #pragma version 8
 intcblock 0 1
-bytecblock 0x 0x53434944 0x54434944 0x151f7c75
+bytecblock 0x 0x55434944
 txn NumAppArgs
 intc_0 // 0
 ==
-bnz main_l10
+bnz main_l6
 txna ApplicationArgs 0
-pushbytes 0x97f20cf3 // "update_SCID(string)void"
+pushbytes 0x848f6a03 // "update_UCID(string)void"
 ==
-bnz main_l9
+bnz main_l5
 txna ApplicationArgs 0
 pushbytes 0x8e622420 // "read_cids()string"
 ==
-bnz main_l8
-txna ApplicationArgs 0
-pushbytes 0x7e771c75 // "update_TCID(string)void"
-==
-bnz main_l7
-txna ApplicationArgs 0
-pushbytes 0x07cd5e5d // "read_tcid()string"
-==
-bnz main_l6
+bnz main_l4
 err
+main_l4:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub readcidscaster_3
+intc_1 // 1
+return
+main_l5:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub updateUCIDcaster_2
+intc_1 // 1
+return
 main_l6:
 txn OnCompletion
 intc_0 // NoOp
 ==
-txn ApplicationID
-intc_0 // 0
-!=
-&&
-assert
-callsub readtcidcaster_7
-intc_1 // 1
-return
-main_l7:
-txn OnCompletion
-intc_0 // NoOp
-==
-txn ApplicationID
-intc_0 // 0
-!=
-&&
-assert
-callsub updateTCIDcaster_6
-intc_1 // 1
-return
-main_l8:
-txn OnCompletion
-intc_0 // NoOp
-==
-txn ApplicationID
-intc_0 // 0
-!=
-&&
-assert
-callsub readcidscaster_5
-intc_1 // 1
-return
-main_l9:
-txn OnCompletion
-intc_0 // NoOp
-==
-txn ApplicationID
-intc_0 // 0
-!=
-&&
-assert
-callsub updateSCIDcaster_4
-intc_1 // 1
-return
-main_l10:
-txn OnCompletion
-intc_0 // NoOp
-==
-bnz main_l12
+bnz main_l8
 err
-main_l12:
+main_l8:
 txn ApplicationID
 intc_0 // 0
 ==
@@ -84,10 +52,10 @@ assert
 intc_1 // 1
 return
 
-// update_SCID
-updateSCID_0:
+// update_UCID
+updateUCID_0:
 proto 1 0
-bytec_1 // "SCID"
+bytec_1 // "UCID"
 frame_dig -1
 extract 2 0
 app_global_put
@@ -97,7 +65,7 @@ retsub
 readcids_1:
 proto 0 1
 bytec_0 // ""
-bytec_1 // "SCID"
+bytec_1 // "UCID"
 app_global_get
 frame_bury 0
 frame_dig 0
@@ -109,70 +77,23 @@ concat
 frame_bury 0
 retsub
 
-// update_TCID
-updateTCID_2:
-proto 1 0
-bytec_2 // "TCID"
-frame_dig -1
-extract 2 0
-app_global_put
-retsub
-
-// read_tcid
-readtcid_3:
-proto 0 1
-bytec_0 // ""
-bytec_2 // "TCID"
-app_global_get
-frame_bury 0
-frame_dig 0
-len
-itob
-extract 6 0
-frame_dig 0
-concat
-frame_bury 0
-retsub
-
-// update_SCID_caster
-updateSCIDcaster_4:
+// update_UCID_caster
+updateUCIDcaster_2:
 proto 0 0
 bytec_0 // ""
 txna ApplicationArgs 1
 frame_bury 0
 frame_dig 0
-callsub updateSCID_0
+callsub updateUCID_0
 retsub
 
 // read_cids_caster
-readcidscaster_5:
+readcidscaster_3:
 proto 0 0
 bytec_0 // ""
 callsub readcids_1
 frame_bury 0
-bytec_3 // 0x151f7c75
-frame_dig 0
-concat
-log
-retsub
-
-// update_TCID_caster
-updateTCIDcaster_6:
-proto 0 0
-bytec_0 // ""
-txna ApplicationArgs 1
-frame_bury 0
-frame_dig 0
-callsub updateTCID_2
-retsub
-
-// read_tcid_caster
-readtcidcaster_7:
-proto 0 0
-bytec_0 // ""
-callsub readtcid_3
-frame_bury 0
-bytec_3 // 0x151f7c75
+pushbytes 0x151f7c75 // 0x151f7c75
 frame_dig 0
 concat
 log

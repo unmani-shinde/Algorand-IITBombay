@@ -1,7 +1,8 @@
+from base64 import b64decode
 import os
 from dotenv import load_dotenv
 from algosdk import account, mnemonic
-from algosdk.v2client import algod
+from algosdk.v2client import algod, indexer
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, AccountTransactionSigner
 from algosdk.abi import Contract
 import json
@@ -19,6 +20,7 @@ APP_ID = os.getenv("NEXT_PUBLIC_ALGO_APP_ID")  # Replace with your actual app ID
 
 # Initialize Algod client
 algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS)
+indexer_client = indexer.IndexerClient('', 'https://testnet-idx.algonode.cloud', '')
 
 # Load the ABI
 with open('../contracts/artifacts/contract.json', 'r') as f:
@@ -89,6 +91,30 @@ def update_tcid():
     #print(f"Transaction ID: {result.tx_ids[0]}")
     print("TCID updated successfully!")
 
+TxID = "LW37EI5DPKF72JRGDNZB3B3B76IGAAVZZ52RRDUFSIC2ASFHHWTA"
+def fetch_state_from_txid(txid):
+    # # Method 1: Using Algod client
+    # try:
+    #     tx_info = algod_client.pending_transaction_info(txid)
+    #     global_state_delta = tx_info.get('global-state-delta', [])
+    #     for delta in global_state_delta:
+    #         if delta['key'] == 'SCID':
+    #             return b64decode(delta['value']['bytes']).decode()
+    # except Exception as e:
+    #     print(f"Error fetching with Algod: {e}")
+
+    # Method 2: Using Indexer
+    try:
+        tx_info = indexer_client.transaction(txid)
+        #print(tx_info)
+        global_state_delta = tx_info['transaction']['global-state-delta'][0]
+        return str(b64decode(global_state_delta['key']).decode()) + ": " + str(b64decode(global_state_delta['value']['bytes']).decode())
+    except Exception as e:
+        print(f"Error fetching with Indexer: {e}")
+
+    return "Nope"
+
 if __name__ == "__main__":
-    update_scid()
+    #update_scid()
     #update_tcid()
+    print(fetch_state_from_txid(TxID))
