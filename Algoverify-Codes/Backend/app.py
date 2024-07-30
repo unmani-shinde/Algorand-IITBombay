@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from urllib.parse import unquote
 import pandas as pd
-from create_spdf.create_database import main
-from verify_record.verify_record import verify
-from update_spdf.update_db import process_csv, create_semi_private_database
+from server_components.create_database import main
+from server_components.verify_record import verify
+from server_components.update_db import process_csv, create_semi_private_database
 import traceback
 
 app = Flask(__name__)
