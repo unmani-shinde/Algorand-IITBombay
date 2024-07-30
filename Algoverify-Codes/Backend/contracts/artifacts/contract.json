@@ -1,0 +1,25 @@
+{
+    "name": "SCID_app",
+    "methods": [
+        {
+            "name": "update_UCID",
+            "args": [
+                {
+                    "type": "string",
+                    "name": "cid"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            }
+        },
+        {
+            "name": "read_cids",
+            "args": [],
+            "returns": {
+                "type": "string"
+            }
+        }
+    ],
+    "networks": {}
+}

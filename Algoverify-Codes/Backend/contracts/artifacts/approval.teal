@@ -1,0 +1,104 @@
+#pragma version 8
+intcblock 0 1
+bytecblock 0x 0x55434944
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l6
+txna ApplicationArgs 0
+pushbytes 0x848f6a03 // "update_UCID(string)void"
+==
+bnz main_l5
+txna ApplicationArgs 0
+pushbytes 0x8e622420 // "read_cids()string"
+==
+bnz main_l4
+err
+main_l4:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub readcidscaster_3
+intc_1 // 1
+return
+main_l5:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub updateUCIDcaster_2
+intc_1 // 1
+return
+main_l6:
+txn OnCompletion
+intc_0 // NoOp
+==
+bnz main_l8
+err
+main_l8:
+txn ApplicationID
+intc_0 // 0
+==
+assert
+intc_1 // 1
+return
+
+// update_UCID
+updateUCID_0:
+proto 1 0
+txn Sender
+pushbytes 0x53507e0d6d72ebaa5c96abc5b45c6e2f989615c53d61dc919270248881544222 // KNIH4DLNOLV2UXEWVPC3IXDOF6MJMFOFHVQ5ZEMSOASIRAKUIIRDLCY7EI
+==
+assert
+bytec_1 // "UCID"
+frame_dig -1
+extract 2 0
+app_global_put
+retsub
+
+// read_cids
+readcids_1:
+proto 0 1
+bytec_0 // ""
+bytec_1 // "UCID"
+app_global_get
+frame_bury 0
+frame_dig 0
+len
+itob
+extract 6 0
+frame_dig 0
+concat
+frame_bury 0
+retsub
+
+// update_UCID_caster
+updateUCIDcaster_2:
+proto 0 0
+bytec_0 // ""
+txna ApplicationArgs 1
+frame_bury 0
+frame_dig 0
+callsub updateUCID_0
+retsub
+
+// read_cids_caster
+readcidscaster_3:
+proto 0 0
+bytec_0 // ""
+callsub readcids_1
+frame_bury 0
+pushbytes 0x151f7c75 // 0x151f7c75
+frame_dig 0
+concat
+log
+retsub

@@ -1,0 +1,72 @@
+{
+    "hints": {
+        "update_UCID(string)void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        },
+        "read_cids()string": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQpieXRlY2Jsb2NrIDB4IDB4NTU0MzQ5NDQKdHhuIE51bUFwcEFyZ3MKaW50Y18wIC8vIDAKPT0KYm56IG1haW5fbDYKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg4NDhmNmEwMyAvLyAidXBkYXRlX1VDSUQoc3RyaW5nKXZvaWQiCj09CmJueiBtYWluX2w1CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4OGU2MjI0MjAgLy8gInJlYWRfY2lkcygpc3RyaW5nIgo9PQpibnogbWFpbl9sNAplcnIKbWFpbl9sNDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiByZWFkY2lkc2Nhc3Rlcl8zCmludGNfMSAvLyAxCnJldHVybgptYWluX2w1Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIHVwZGF0ZVVDSURjYXN0ZXJfMgppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQpibnogbWFpbl9sOAplcnIKbWFpbl9sODoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmludGNfMSAvLyAxCnJldHVybgoKLy8gdXBkYXRlX1VDSUQKdXBkYXRlVUNJRF8wOgpwcm90byAxIDAKdHhuIFNlbmRlcgpwdXNoYnl0ZXMgMHg1MzUwN2UwZDZkNzJlYmFhNWM5NmFiYzViNDVjNmUyZjk4OTYxNWM1M2Q2MWRjOTE5MjcwMjQ4ODgxNTQ0MjIyIC8vIEtOSUg0RExOT0xWMlVYRVdWUEMzSVhET0Y2TUpNRk9GSFZRNVpFTVNPQVNJUkFLVUlJUkRMQ1k3RUkKPT0KYXNzZXJ0CmJ5dGVjXzEgLy8gIlVDSUQiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApyZXRzdWIKCi8vIHJlYWRfY2lkcwpyZWFkY2lkc18xOgpwcm90byAwIDEKYnl0ZWNfMCAvLyAiIgpieXRlY18xIC8vICJVQ0lEIgphcHBfZ2xvYmFsX2dldApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHVwZGF0ZV9VQ0lEX2Nhc3Rlcgp1cGRhdGVVQ0lEY2FzdGVyXzI6CnByb3RvIDAgMApieXRlY18wIC8vICIiCnR4bmEgQXBwbGljYXRpb25BcmdzIDEKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmNhbGxzdWIgdXBkYXRlVUNJRF8wCnJldHN1YgoKLy8gcmVhZF9jaWRzX2Nhc3RlcgpyZWFkY2lkc2Nhc3Rlcl8zOgpwcm90byAwIDAKYnl0ZWNfMCAvLyAiIgpjYWxsc3ViIHJlYWRjaWRzXzEKZnJhbWVfYnVyeSAwCnB1c2hieXRlcyAweDE1MWY3Yzc1IC8vIDB4MTUxZjdjNzUKZnJhbWVfZGlnIDAKY29uY2F0CmxvZwpyZXRzdWI=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 1,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "UCID": {
+                    "type": "bytes",
+                    "key": "UCID",
+                    "descr": ""
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "SCID_app",
+        "methods": [
+            {
+                "name": "update_UCID",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "cid"
+                    }
+                ],
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "read_cids",
+                "args": [],
+                "returns": {
+                    "type": "string"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}
