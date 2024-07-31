@@ -14,22 +14,15 @@ interface FormData {
   university: string;
   student_SID: string;
   student_grad_year: string;
+  txID: string;
 }
 
 const VerifierPage: React.FC = () => {
-  const [formData_, setFormData_] = useState<FormData>({ student_name: '', university: '', student_SID: '', student_grad_year: '' });
+  const [formData_, setFormData_] = useState<FormData>({ student_name: '', university: '', student_SID: '', student_grad_year: '', txID: ''});
   const [modalMessage, setModalMessage] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [SCID, setSCID] = useState<string>("");
-
-  useEffect(() => {
-    const initialize = async () => {
-      await readGlobalState();
-    };
-    initialize();
-  }, []);
 
   useEffect(() => {
     if (showModal) {
@@ -39,71 +32,28 @@ const VerifierPage: React.FC = () => {
     }
   }, [showModal]);
 
-  const readGlobalState = async () => {
-    const appInfo = await algodClient.getApplicationByID(appIndex).do();
-    const globalState = appInfo.params['global-state'];
-    const scidState = globalState.find(
-      (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
-        const key = Buffer.from(item.key, 'base64').toString('utf8');
-        return key === 'SCID';
-      }
-    );
-    let value: string | null = null;
-    if (scidState && scidState.value.type === 1) {
-      value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
-    }
-    if (value) setSCID(value);
-    else setSCID("");
-    console.log('SCID Value:', value);
-  };
-
-  const readTCID = async () => {
-    try {
-      const appInfo = await algodClient.getApplicationByID(appIndex).do();
-      const globalState = appInfo.params['global-state'];
-      const tcidState = globalState.find(
-        (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
-          const key = Buffer.from(item.key, 'base64').toString('utf8');
-          return key === 'TCID';
-        }
-      );
-      if (tcidState && tcidState.value.type === 1) {
-        const value = Buffer.from(tcidState.value.bytes, 'base64').toString('utf8');
-        console.log('TCID Value:', value);
-        return value;
-      }
-    } catch (error) {
-      console.error('Failed to read TCID:', error);
-    }
-    return null;
-  };
-
   const fetchUniversityCID = async () => {
-    const blob = await ExportCSV(SCID);
-    let superTable = new Blob([blob as BlobPart]);
-    const formData = new FormData();
-    formData.append('super_database', superTable, 'data.csv');
-
-    const res = await fetch(`http://127.0.0.1:5000/get-uni-cid?university=${formData_.university}`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to fetch University CID');
-    }
-
-    const data = await res.json();
-    const text_res = data.cid;
-    console.log('University CID:', text_res);
-
-    return text_res;
+    try {
+      // Fetch the transaction info
+      const txInfo = await indexerClient.lookupTransactionByID(formData_.txID).do();
+      
+      // Get the global state delta
+      const globalStateDelta = txInfo['transaction']['global-state-delta'][0];
+      
+      // Decode the value
+      const value = Buffer.from(globalStateDelta['value']['bytes'], 'base64').toString('utf8');
+      
+      return value;
+  } catch (error) {
+      console.error(`Error fetching with Indexer: ${error}`);
+      return null;
+  }
   };
 
-  const getTransactionTimestamp = async (txID: string) => {
+  const getTransactionTimestamp = async () => {
     try {
       // Search for the transaction using the Indexer
-      const txInfo = await indexerClient.lookupTransactionByID(txID).do();
+      const txInfo = await indexerClient.lookupTransactionByID(formData_.txID).do();
 
       if (!txInfo || !txInfo.transaction) {
         console.log('Transaction not found');
@@ -130,7 +80,15 @@ const VerifierPage: React.FC = () => {
 
   const fetchCSV = async () => {
     try {
+      //fetch UCID from transaction's global state
       const UCID = await fetchUniversityCID();
+      if (!UCID) {
+        console.error("Transaction ID not found");
+        setIsSuccess(false);
+        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified. Transaction ID not found.`);
+        setShowModal(true);
+        return;
+      }
 
       const blob = await ExportCSV(UCID);
       let fileBlob = new Blob([blob as BlobPart]);
@@ -157,40 +115,7 @@ const VerifierPage: React.FC = () => {
         return;
       }
 
-      const TCID = await readTCID();
-      if (!TCID) {
-        console.error("Failed to read TCID");
-        return;
-      }
-
-      const grad_year = formData_.student_grad_year;
-      const txBlob = await ExportCSV(TCID);
-      if (!txBlob) {
-        console.error("Failed to export CSV for transactions");
-        return;
-      }
-
-      const csvText = await txBlob.text();
-      const lines = csvText.split('\n');
-      let txID;
-      for (let i = 1; i < lines.length; i++) {
-        const [csvUCID, csvGradYear, csvTxID] = lines[i].split(',');
-        
-        if (csvUCID.trim() === UCID.trim() && csvGradYear.trim() === grad_year.trim()) {
-          txID = csvTxID.trim();
-          break;
-        }
-      }
-
-      if (!txID) {
-        console.error("Transaction ID not found");
-        setIsSuccess(false);
-        setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, could not be verified. Transaction ID not found.`);
-        setShowModal(true);
-        return;
-      }
-
-      const timestamp = await getTransactionTimestamp(txID);
+      const timestamp = await getTransactionTimestamp();
       if (!timestamp) {
         console.error("Failed to retrieve transaction timestamp");
         setIsSuccess(false);
@@ -198,17 +123,8 @@ const VerifierPage: React.FC = () => {
         setShowModal(true);
         return;
       }
-
-      // const txYear = new Date(timestamp * 1000).getFullYear();
-      // const gradYearInt = parseInt(grad_year);
-
-      // if (Math.abs(txYear - gradYearInt) <= 1) {
-      //   setIsSuccess(true);
-      //   setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
-      // } else {
-      //   setIsSuccess(true);
-      //   setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
-      // }
+      
+      //// SUCCESS ////
       setIsSuccess(true);
       setModalMessage(`Student ${formData_.student_name} from ${formData_.university}, graduating in ${formData_.student_grad_year}, has been successfully verified.\nRecord added on: ${new Date(timestamp * 1000).toLocaleString()}`);
       setShowModal(true);
@@ -228,7 +144,7 @@ const VerifierPage: React.FC = () => {
     <section style={{ marginBottom: '-3vh' }} className="bg-gradient-to-b from-grey-900 to-indigo-100 w-full flex items-center flex-col flex-grow pt-20 ">
       <div className="py-8 px-4 mx-auto w-full text-center lg:py-16 lg:px-12">
         <StudentDetailsForm formData={formData_} setFormData={setFormData_} />
-        <button data-modal-target="popup-modal" data-modal-toggle="popup-modal" type="button" onClick={handleVerify} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <button data-modal-target="popup-modal" data-modal-toggle="popup-modal" type="button" onClick={handleVerify} className="text-white mt-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
           Verify Student Details
         </button>
 
