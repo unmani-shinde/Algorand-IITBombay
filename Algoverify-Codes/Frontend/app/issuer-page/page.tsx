@@ -106,7 +106,7 @@ function Issuer() {
     const scidState = globalState.find(
       (item: { key: string, value: { bytes: string, type: number, uint: number } }) => {
         const key = Buffer.from(item.key, 'base64').toString('utf8');
-        return key === 'SCID';
+        return key === 'UCID';
       }
     );
     let value: string | null = null;
@@ -114,7 +114,7 @@ function Issuer() {
       value = Buffer.from(scidState.value.bytes, 'base64').toString('utf8');
     }
     setGlobalState(value);
-    console.log('SCID Value:', value);
+    console.log('UCID Value:', value);
   };
 
   const callUpdateUCID = async () => {
@@ -146,8 +146,12 @@ function Issuer() {
     }
   };
 
-  const handleClick = async () => {
-    if (!fileUploaded) return;
+  const handleClick = async (event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    if (!fileUploaded) {
+      console.error("file not uploaded");
+      return;
+    }
 
     const fileBlob = new Blob([fileUploaded]);
     const formData = new FormData();
@@ -161,10 +165,10 @@ function Issuer() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         const csvString = convertJsonToCsv(data);
         const blob = new Blob([csvString], { type: 'text/csv' });
         const university_hash = await pinFiletoIPFS(blob, university);
-        //setUCID(university_hash);
         methodArg.current = university_hash;
         callUpdateUCID();
       } else {
@@ -254,7 +258,7 @@ function Issuer() {
       name="start-year"
       value={startYear}
       onChange={(e) => setStartYear(Number(e.target.value))}
-      className="mt-1 text-white block w-full border-gray-300 rounded-md shadow-sm text-black bg-transparent focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+      className="mt-1 text-white block w-full border-gray-300 rounded-md shadow-sm bg-transparent focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
     >
       {years.map((year) => (
         <option key={year} value={year} className="text-black">
