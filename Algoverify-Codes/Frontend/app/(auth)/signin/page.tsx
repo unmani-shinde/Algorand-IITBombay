@@ -1,11 +1,59 @@
-export const metadata = {
-  title: 'Verifier Login',
-  description: 'Page description',
-}
 
+"use client"
 import Link from 'next/link'
+import { Magic } from 'magic-sdk';
+import { AlgorandExtension } from '@magic-ext/algorand';
+import { useState,useEffect } from 'react';
 
 export default function SignIn() {
+  const [provider, setProvider] = useState<Magic<{ algorand: AlgorandExtension }> | null>(null);
+  const [emailID,setEmailID] = useState<string>("");
+  const [walletAddress,setWalletAddress] = useState<string>("")
+  const [ALGOTrustID,setALGOTrustID] = useState<string>("")
+
+  const handleSignIn = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (provider) {
+      try {
+        try {
+          const did = await provider.auth.loginWithEmailOTP({ email: emailID, showUI: true });
+          console.log(`DID Token: ${did}`);
+          const userInfo = await provider.user.getInfo();
+
+          console.log(`UserInfo:`, userInfo);
+          const publicAddress = await provider.algorand.getWallet();
+          console.log('algorand public address', publicAddress);
+          if(publicAddress!==walletAddress){
+            alert("Login insuccessful! Incorrect Email ID or Wallet Address")
+          }
+          else {
+            alert("Login successful! Redirecting to issue credentials page ...");
+            window.location.href = "/issuer-page";
+          }
+        
+          
+        } catch (error) {
+          console.error("MAGIC Setup failed:", error);
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    } else {
+      console.error("Magic instance is not initialized");
+    }
+  };
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const magic = new Magic('pk_live_B5BD957434321A6E', {
+        extensions: {
+          algorand: new AlgorandExtension({
+            rpcUrl: 'https://testnet-api.algonode.cloud',
+          }),
+        },
+      });
+      setProvider(magic);
+    }
+  }, []);
   return (
     <section className="relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -40,24 +88,24 @@ export default function SignIn() {
               <div className="flex flex-wrap -mx-3 mb-4">
                 <div className="w-full px-3">
                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="wallet-address">Enter Wallet Address <span className="text-red-600">*</span></label>
-                  <input id="text" type="text" className="form-input w-full text-gray-300" placeholder="ABC12345" required />
+                  <input onChange={(e)=>setWalletAddress(e.target.value)} id="text" type="text" className="form-input w-full text-gray-300" placeholder="ABC12345" required />
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mb-4">
                 <div className="w-full px-3">
-                  <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="wallet-login-id">Enter Wallet Login ID <span className="text-red-600">*</span></label>
-                  <input id="text" type="text" className="form-input w-full text-gray-300" placeholder="0xABCD123" required />
+                  <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="wallet-login-id">Enter Organization Email Address <span className="text-red-600">*</span></label>
+                  <input onChange={(e)=>setEmailID(e.target.value)} id="text" type="text" className="form-input w-full text-gray-300" placeholder="janesmith@org.ac.in" required />
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mb-4">
                 <div className="w-full px-3">
                   <label className="block text-gray-300 text-sm font-medium mb-1" htmlFor="algotrustid">University ALGOTrust ID <span className="text-red-600">*</span></label>
-                  <input id="algotrustid" type="text" className="form-input w-full text-gray-300" placeholder="XYZABC1234" required />
+                  <input onChange={(e)=>{setALGOTrustID(e.target.value)}} id="algotrustid" type="text" className="form-input w-full text-gray-300" placeholder="XYZABC1234" required />
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mt-6">
                 <div className="w-full px-3">
-                  <button className="btn text-white bg-purple-600 hover:bg-purple-700 w-full">Sign in</button>
+                  <button onClick={handleSignIn} className="btn text-white bg-purple-600 hover:bg-purple-700 w-full">Sign in</button>
                 </div>
               </div>
             </form>

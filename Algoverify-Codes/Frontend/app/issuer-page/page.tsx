@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Modal } from "flowbite-react";
 import algosdk from 'algosdk';
-import * as abi from "../../../Backend/contracts/artifacts/contract.json";
+import * as abi from "../../../Backend/artifacts/contract.json";
 import Papa from 'papaparse';
 import IssuerForm from "./components/issueForm";
 import { FileUpload } from "./components/fileupload";
