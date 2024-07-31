@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Modal } from "flowbite-react";
 import algosdk from 'algosdk';
-import * as abi from "../../../Backend/artifacts/contract.json";
+import * as abi from "../../../Backend/contracts/artifacts/contract.json";
 import Papa from 'papaparse';
 import IssuerForm from "./components/issueForm";
 import { FileUpload } from "./components/fileupload";
@@ -192,7 +192,7 @@ function Issuer() {
   };
 
   return (
-    <section style={{ marginBottom: '-3vh' }} className="w-full flex items-center flex-col justify-center block pt-10">
+    <section style={{ marginBottom: '-3vh' }} className="w-full flex items-center flex-col justify-center pt-10">
       <div className="items-center flex flex-col py-8 px-4 mx-auto w-full text-center lg:py-16 lg:px-12">
         <h1 className="mt-4 mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-5xl lg:text-6xl dark:text-white">Issue Your Credentials.</h1>
         <div className="mt-1 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -248,7 +248,7 @@ function Issuer() {
     Years of Credentials Included
   </label>
 
-  <div className="flex flex-row gap-x-4 pl-12 items-center block">
+  <div className="flex flex-row gap-x-4 pl-12 items-center">
   <div className="flex flex-col w-32">
     <label htmlFor="start-year" className="block text-md font-medium leading-6 text-white">
       Start Year:
@@ -277,7 +277,7 @@ function Issuer() {
       name="end-year"
       value={endYear}
       onChange={(e) => setEndYear(Number(e.target.value))}
-      className="mt-1 block text-white w-full border-gray-300 rounded-md shadow-sm text-black bg-transparent focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+      className="mt-1 block text-white w-full border-gray-300 rounded-md shadow-sm bg-transparent focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
     >
       {years.map((year) => (
         <option key={year} value={year} className="text-black">

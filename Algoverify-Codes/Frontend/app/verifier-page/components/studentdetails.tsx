@@ -104,7 +104,7 @@ const StudentDetailsForm: React.FC<StudentDetailsFormProps> = ({ formData, setFo
         />
       </div>
       <div className="mb-5">
-        <label htmlFor="txID" className="block mb-2 text-sm font-medium text-white text-left flex items-center">
+        <label htmlFor="txID" className="block mb-2 text-sm font-medium text-white text-left items-center">
           Transaction ID
           <button
             type="button"
