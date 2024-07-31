@@ -63,8 +63,8 @@ def verify(db,student_name,student_SID,student_grad_year):
         else:
             is_record_verified = False
 
-    print(is_record_verified, timestamp)
-    return is_record_verified, timestamp
+    print(is_record_verified)
+    return is_record_verified
 
 
 

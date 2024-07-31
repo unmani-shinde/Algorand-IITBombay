@@ -103,11 +103,9 @@ def get_verified():
 
     try:
 
-        verification_result, timestamp = verify(database, student_name, student_sid, student_grad_year)
-        
+        verification_result = verify(database, student_name, student_sid, student_grad_year)
         return jsonify({
-            'verified': verification_result,
-            'timestamp': timestamp if verification_result else None
+            'verified': verification_result
         })
     
     except Exception as e:
